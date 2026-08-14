@@ -747,3 +747,93 @@ graph TD
     style L3 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style L4 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
+
+
+## dedicated "Security & Infrastructure Architecture" diagram.
+```mermaid
+graph TD
+    %% ==========================================
+    %% GLOBAL STYLING (DARK THEME OPTIMIZED)
+    %% ==========================================
+    classDef infra fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000;
+    classDef ai fill:#64b5f6,stroke:#0d47a1,stroke-width:2px,color:#000;
+    classDef db fill:#fff176,stroke:#f57f17,stroke-width:2px,color:#000;
+    classDef client fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000;
+    classDef sec fill:#ff80ab,stroke:#880e4f,stroke-width:2px,color:#000;
+
+    linkStyle default stroke:#b0bec5,stroke-width:2px,fill:none;
+
+    %% ==========================================
+    %% 1. PERIMETER & EDGE SECURITY
+    %% ==========================================
+    subgraph Perimeter ["Perimeter & Edge Security Layer"]
+        direction TB
+        Client["Mobile Client / Web Portal"]:::client
+        WAF["AWS WAF & DDoS Protection<br>(IP Throttling & Rate Limiting)"]:::sec
+        APIGateway["AWS API Gateway<br>(Enforced TLS 1.3)"]:::infra
+
+        Client -->|"HTTPS / TLS 1.3"| WAF
+        WAF --> APIGateway
+    end
+
+    %% ==========================================
+    %% 2. AUTHENTICATION & ACCESS CONTROL (IAM)
+    %% ==========================================
+    subgraph IAM ["Identity & Access Management (IAM)"]
+        direction TB
+        AuthService["Auth Service<br>(JWT & OAuth2 Validation)"]:::sec
+        RBAC["Role-Based Access Control (RBAC)<br>(Citizen vs. Ward Admin)"]:::sec
+
+        APIGateway --> AuthService
+        AuthService --> RBAC
+    end
+
+    %% ==========================================
+    %% 3. APPLICATION & AI INFERENCE VPC (PRIVATE SUBNET)
+    %% ==========================================
+    subgraph PrivateVPC ["Private VPC (Isolated Cluster)"]
+        direction TB
+        mTLS["mTLS Service Mesh<br>(Encrypted Pod-to-Pod Comms)"]:::sec
+        AI_Cluster["Secure AI Inference Pods<br>(NLP, Vision, & Sentiment Models)"]:::ai
+        DataSanitizer["Input Sanitization & PII Redactor<br>(Prompt Injection & Script Guard)"]:::sec
+
+        RBAC --> mTLS
+        mTLS --> DataSanitizer
+        DataSanitizer --> AI_Cluster
+    end
+
+    %% ==========================================
+    %% 4. SECURE DATA LAYER (AT REST & STORAGE)
+    %% ==========================================
+    subgraph DataLayer ["Secure Data Layer (At Rest Encryption)"]
+        direction TB
+        PG[("PostgreSQL Database<br>(AES-256 + Row-Level Security)")]:::db
+        Redis[("Redis Cache<br>(Encrypted Token & Session Store)")]:::db
+        S3[("AWS S3 Storage<br>(Encrypted Buckets + Pre-signed URLs)")]:::db
+    end
+
+    AI_Cluster -->|"Encrypted Queries"| PG
+    AI_Cluster -->|"Session Check"| Redis
+    AI_Cluster -->|"Secure Asset Archive"| S3
+
+    %% ==========================================
+    %% 5. MONITORING & AUDITING
+    %% ==========================================
+    subgraph Compliance ["Monitoring & Security Auditing"]
+        direction TB
+        SIEM["Centralized SIEM & Audit Logs<br>(Anomaly Detection & Kafka Audit)"]:::sec
+    end
+
+    PG -.-> SIEM
+    APIGateway -.-> SIEM
+    AI_Cluster -.-> SIEM
+
+    %% ==========================================
+    %% SUBGRAPH TRANSPARENCY
+    %% ==========================================
+    style Perimeter fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style IAM fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style PrivateVPC fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style DataLayer fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Compliance fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+```
