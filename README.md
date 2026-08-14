@@ -5,7 +5,7 @@ graph TD
     %% ----- STYLING & CLASSES -----
     classDef input fill:#c8e6c9,stroke:#000000,stroke-width:2px,color:#000;
     classDef model fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:#000;
-    classDef decision fill:#ffecb3,stroke:#f39c12,stroke-width:2px,shape:diamond,color:#000;
+    classDef decision fill:#ffecb3,stroke:#f39c12,stroke-width:2px,color:#000;
     classDef terminal fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000;
     classDef db fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000;
     classDef bucket fill:#eceff1,stroke:#546e7a,stroke-width:1px,stroke-dasharray: 3 3,color:#000;
@@ -94,7 +94,7 @@ graph TD
     RatioCalc -->|High % Thanks| Supporters
     RatioCalc -->|Balanced / Low Data| Neutrals
 ```
-##1. Text Moderation & Routing (BERT / Gemma-2B) -> Toxic/Policy Classifier
+## 1. Text Moderation & Routing (BERT / Gemma-2B) -> Toxic/Policy Classifier
 *  Yeh model text ko samajhne ke liye Transformer architecture ka use karta hai. Is prompt se aapko Multi-Head Attention mechanism ki mapping milegi.
 
 ```mermaid
@@ -106,7 +106,7 @@ graph TD
     classDef transformer fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000;
     %% Red for Output & Prediction
     classDef outputLayer fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#000;
-    classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000,shape:stadium;
+    classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000;
 
     %% ----- 1. INPUT LAYER -----
     subgraph Sub_Input [1. Input Layer]
