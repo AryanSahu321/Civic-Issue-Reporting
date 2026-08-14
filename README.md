@@ -980,3 +980,35 @@ sequenceDiagram
         API-->>App: 202 Accepted (Issue Pending Processing)
     end
 ```
+#1. State Machine Diagram (GitHub-Safe)
+* If we don't strictly define how an issue moves from one state to another (and exactly who or what has the permission to move it), we risk race conditions—like a citizen accidentally marking an unresolved issue as "Solved" or the AI bypassing the local ward.
+
+```mermaid
+stateDiagram-v2
+    %% Define States
+    state "Pending NLP & Vision" as PENDING_NLP
+    state "Flagged Fraud / Toxic" as FLAGGED_FRAUD
+    state "Spatially Verified" as SPATIAL_VERIFIED
+    state "Assigned to Ward" as ASSIGNED_TO_WARD
+    state "Under Process" as UNDER_PROCESS
+    state "Escalated to State" as ESCALATED
+    state "Resolved" as RESOLVED
+
+    %% Transitions
+    [*] --> PENDING_NLP : Mobile App Submit
+
+    PENDING_NLP --> FLAGGED_FRAUD : AI Rejects (ViT/Gemma)
+    FLAGGED_FRAUD --> [*] : Auto-Delete or Admin Reject
+
+    PENDING_NLP --> SPATIAL_VERIFIED : AI Approves (Clean)
+    SPATIAL_VERIFIED --> ASSIGNED_TO_WARD : PostGIS PiP Trigger
+
+    ASSIGNED_TO_WARD --> UNDER_PROCESS : Ward Admin Acknowledges
+    UNDER_PROCESS --> RESOLVED : Ward Admin Fixes
+
+    ASSIGNED_TO_WARD --> ESCALATED : SLA Timeout (48 Hrs)
+    UNDER_PROCESS --> ESCALATED : SLA Timeout (7 Days)
+
+    ESCALATED --> RESOLVED : State Admin Intervenes
+    RESOLVED --> [*]
+```
