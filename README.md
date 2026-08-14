@@ -9,13 +9,8 @@ graph TD
     linkStyle default stroke:#cfd8dc,stroke-width:2px,fill:none;
 
     %% 2. Node Classes (Brighter Fills, Darker Strokes, Black Text)
-    %% std = Standard nodes (Bright Blue + Navy Stroke)
     classDef std fill:#82b1ff,stroke:#002171,stroke-width:2px,color:#000
-    
-    %% dec = Decision nodes (Bright Pink + Deep Maroon Stroke)
     classDef dec fill:#ff80ab,stroke:#880e4f,stroke-width:2px,color:#000
-    
-    %% db = Database nodes (Bright Yellow + Deep Orange Stroke)
     classDef db fill:#ffff8d,stroke:#e65100,stroke-width:2px,color:#000
 
     %% ==========================================
@@ -48,7 +43,16 @@ graph TD
     N7 --> BRE1["END: Post<br>Removed /<br>Flagged"]:::std
     N8 --> BRE2["END: Post<br>Removed"]:::std
 
-    D2 -->|"No (Authentic)"| N9["Step 3: Central<br>Database &<br>Analytics Hub"]:::std
+    %% ==========================================
+    %% NEW PHASE 2.5: GEOTAGGING & ROUTING
+    %% ==========================================
+    D2 -->|"No (Authentic)"| N_Geo["Step 2.5: Geotag Extraction<br>& Routing Engine"]:::std
+    N_Geo --> D_Geo{"Is GPS Valid<br>& Match EXIF?"}:::dec
+    
+    D_Geo -->|"No (Spoofed/Missing)"| GeoReject["Reject: Location Invalid<br>or Spoofed"]:::std
+    D_Geo -->|"Yes (Verified)"| N_Assign["GIS Mapping:<br>Auto-Assign to Local Ward Authority"]:::std
+
+    N_Assign --> N9["Step 3: Central<br>Database &<br>Analytics Hub"]:::std
 
     %% ==========================================
     %% PHASE 3: SENTIMENT & PERCEPTION
@@ -107,6 +111,8 @@ graph TD
     %% ==========================================
     %% LINK STYLING (Neon Green/Red Logic Arrows)
     %% ==========================================
+    %% Note: Absolute numbering dynamically matches the current tree structure.
+    
     %% D1 Yes (Spam) -> Bright Red
     linkStyle 4 stroke:#ff1744,stroke-width:2px;
     %% D1 No (Clean) -> Bright Green
@@ -116,11 +122,16 @@ graph TD
     linkStyle 10 stroke:#ff1744,stroke-width:2px;
     %% D2 No (Authentic) -> Bright Green
     linkStyle 15 stroke:#00e676,stroke-width:2px;
+
+    %% D_Geo No (Spoofed) -> Bright Red
+    linkStyle 17 stroke:#ff1744,stroke-width:2px;
+    %% D_Geo Yes (Verified) -> Bright Green
+    linkStyle 18 stroke:#00e676,stroke-width:2px;
     
     %% D4 No (Escalate) -> Bright Red Dashed
-    linkStyle 38 stroke:#ff1744,stroke-width:2px,stroke-dasharray: 5 5;
+    linkStyle 42 stroke:#ff1744,stroke-width:2px,stroke-dasharray: 5 5;
     %% D4 Yes (Solved) -> Bright Green
-    linkStyle 40 stroke:#00e676,stroke-width:2px;
+    linkStyle 44 stroke:#00e676,stroke-width:2px;
 ```
 
 
@@ -129,20 +140,24 @@ graph TD
 ## model working flow 
 ```mermaid
 graph TD
-    %% ----- STYLING & CLASSES -----
-    classDef input fill:#c8e6c9,stroke:#000000,stroke-width:2px,color:#000;
-    classDef model fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:#000;
-    classDef decision fill:#ffecb3,stroke:#f39c12,stroke-width:2px,color:#000;
-    classDef terminal fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000;
-    classDef db fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000;
-    classDef bucket fill:#eceff1,stroke:#546e7a,stroke-width:1px,stroke-dasharray: 3 3,color:#000;
-    classDef engine fill:#ffe082,stroke:#ff8f00,stroke-width:2px,color:#000;
+    %% ==========================================
+    %% GLOBAL STYLING (DARK THEME OPTIMIZED)
+    %% ==========================================
+    linkStyle default stroke:#cfd8dc,stroke-width:2px,fill:none;
+
+    classDef input fill:#69f0ae,stroke:#1b5e20,stroke-width:2px,color:#000;
+    classDef model fill:#e040fb,stroke:#4a148c,stroke-width:2px,color:#000;
+    classDef decision fill:#ffd740,stroke:#e65100,stroke-width:2px,color:#000;
+    classDef terminal fill:#ff5252,stroke:#b71c1c,stroke-width:2px,color:#000;
+    classDef db fill:#40c4ff,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef bucket fill:#cfd8dc,stroke:#37474f,stroke-width:2px,stroke-dasharray: 3 3,color:#000;
+    classDef engine fill:#ffab40,stroke:#e65100,stroke-width:2px,color:#000;
 
     %% ----- 1. USER INPUT -----
     Input[/"Civic Post (Text + Image)"/]:::input
 
     %% ----- 2. LAYER 1: NLP GATEKEEPER -----
-    subgraph Layer_1 [Layer 1: NLP Gatekeeper]
+    subgraph Layer_1 ["Layer 1: NLP Gatekeeper"]
         direction TB
         ToxicClass["Toxic/Policy Classifier"]:::model
         CheckToxic{"Is Toxic?"}:::decision
@@ -154,17 +169,17 @@ graph TD
         IssuePosts["Issue Posts (Continue)"]:::input
     end
 
-    Input -->|Route Text| ToxicClass
+    Input -->|"Route Text"| ToxicClass
     ToxicClass --> CheckToxic
-    CheckToxic -->|Toxic| Abort
-    CheckToxic -->|Compliant| IntentRouter
+    CheckToxic -->|"Toxic"| Abort
+    CheckToxic -->|"Compliant"| IntentRouter
     IntentRouter --> CheckIntent
-    CheckIntent -->|Thank You| ThankYou
-    CheckIntent -->|Other| OtherPosts
-    CheckIntent -->|Issue| IssuePosts
+    CheckIntent -->|"Thank You"| ThankYou
+    CheckIntent -->|"Other"| OtherPosts
+    CheckIntent -->|"Issue"| IssuePosts
 
     %% ----- 3. LAYER 2: FAKE MEDIA & FRAUD PREVENTION -----
-    subgraph Layer_2 [Layer 2: Fake Media & Fraud Prevention]
+    subgraph Layer_2 ["Layer 2: Fake Media & Fraud Prevention"]
         direction TB
         GenCheck["AI Generative Check (CNN/ViT)"]:::model
         CheckDeepfake{"Is Deepfake?"}:::decision
@@ -175,34 +190,37 @@ graph TD
         UniqueImage["Verified Unique Image"]:::input
     end
 
-    IssuePosts -->|Route Image| GenCheck
+    IssuePosts -->|"Route Image"| GenCheck
     GenCheck --> CheckDeepfake
-    CheckDeepfake -->|Yes| RejectFake
-    CheckDeepfake -->|Authentic| pHash
+    CheckDeepfake -->|"Yes"| RejectFake
+    CheckDeepfake -->|"Authentic"| pHash
     pHash --> CheckDB
-    CheckDB -->|Match Found| RejectFraud
-    CheckDB -->|Unique| UniqueImage
+    CheckDB -->|"Match Found"| RejectFraud
+    CheckDB -->|"Unique"| UniqueImage
 
     %% ----- 4. LAYER 3: INFRASTRUCTURE CV ENGINE -----
-    subgraph Layer_3 [Layer 3: Infrastructure CV Engine]
+    subgraph Layer_3 ["Layer 3: Infrastructure CV Engine"]
         direction TB
         VisionClass["Vision Classifier (YOLO/MobileNet)"]:::model
         CatPotholes["Potholes"]:::bucket
         CatGarbage["Garbage"]:::bucket
         CatLights["Streetlights"]:::bucket
-        FinalDB[("Relational Database")]:::db
+        FinalDB[("Central Relational Database")]:::db
     end
 
-    UniqueImage -->|Verified Image| VisionClass
-    VisionClass -->|Categorize| CatPotholes
-    VisionClass -->|Categorize| CatGarbage
-    VisionClass -->|Categorize| CatLights
-    CatPotholes --> FinalDB
-    CatGarbage --> FinalDB
-    CatLights --> FinalDB
+    UniqueImage -->|"Verified Image"| VisionClass
+    VisionClass -->|"Categorize"| CatPotholes
+    VisionClass -->|"Categorize"| CatGarbage
+    VisionClass -->|"Categorize"| CatLights
+    
+    %% Save classified issues and clean text to DB
+    CatPotholes -->|"Save Issue Data"| FinalDB
+    CatGarbage -->|"Save Issue Data"| FinalDB
+    CatLights -->|"Save Issue Data"| FinalDB
+    IssuePosts -.->|"Save Clean Text"| FinalDB
 
     %% ----- 5. LAYER 4: BEHAVIORAL ANALYTICS -----
-    subgraph Layer_4 [Layer 4: Behavioral Analytics Engine]
+    subgraph Layer_4 ["Layer 4: Behavioral Analytics Engine"]
         direction TB
         BehaviorEngine["User Behavior & Sentiment Engine"]:::engine
         RatioCalc{"Calc: % Negative vs % Thanks"}:::decision
@@ -211,15 +229,26 @@ graph TD
         Neutrals[/"[Neutrals]"/]:::bucket
     end
 
-    %% Dotted asynchronous connection from Input AND Database
-    Input -.->|Async: Current Text| BehaviorEngine
-    FinalDB -.->|Async: Past Issue/Thanks Data| BehaviorEngine
+    %% NEW LOGIC: Engine ONLY pulls from DB, not from Input
+    FinalDB -.->|"Fetch Text & Past Data<br>(Async Batch Process)"| BehaviorEngine
     
-    %% Engine calculates the ratio and routes to buckets
     BehaviorEngine --> RatioCalc
-    RatioCalc -->|High % Negative| Haters
-    RatioCalc -->|High % Thanks| Supporters
-    RatioCalc -->|Balanced / Low Data| Neutrals
+    RatioCalc -->|"High % Negative"| Haters
+    RatioCalc -->|"High % Thanks"| Supporters
+    RatioCalc -->|"Balanced / Low Data"| Neutrals
+
+    %% NEW LOGIC: Push results back to DB
+    Haters -->|"Update DB Status"| FinalDB
+    Supporters -->|"Update DB Status"| FinalDB
+    Neutrals -->|"Update DB Status"| FinalDB
+
+    %% ==========================================
+    %% SUBGRAPH TRANSPARENCY & DARK TEXT FIX
+    %% ==========================================
+    style Layer_1 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Layer_2 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Layer_3 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Layer_4 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
 ## 1. Text Moderation & Routing (BERT / Gemma-2B) -> Toxic/Policy Classifier
 *  Yeh model text ko samajhne ke liye Transformer architecture ka use karta hai. Is prompt se aapko Multi-Head Attention mechanism ki mapping milegi.
