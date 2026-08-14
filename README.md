@@ -154,7 +154,7 @@ graph TD
     classDef engine fill:#ffab40,stroke:#e65100,stroke-width:2px,color:#000;
 
     %% ----- 1. USER INPUT -----
-    Input[/"Civic Post (Text + Image)"/]:::input
+    Input[/"Civic Post (Text + Image + GPS)"/]:::input
 
     %% ----- 2. LAYER 1: NLP GATEKEEPER -----
     subgraph Layer_1 ["Layer 1: NLP Gatekeeper"]
@@ -198,6 +198,22 @@ graph TD
     CheckDB -->|"Match Found"| RejectFraud
     CheckDB -->|"Unique"| UniqueImage
 
+    %% ----- 3.5 LAYER 2.5: GEOTAG & SPATIAL ENGINE -----
+    subgraph Layer_2_5 ["Layer 2.5: Geotag & Spatial Engine"]
+        direction TB
+        GeoExtract["Spatial Extractor<br>(EXIF vs Live GPS)"]:::model
+        CheckGeo{"Is Location<br>Valid?"}:::decision
+        RejectGeo("Flag & Reject<br>(Spoofed GPS)"):::terminal
+        SpatialDedup["Spatial Clustering<br>(Radius Deduplication)"]:::model
+        GeoVerified["Spatially Verified<br>Image & Data"]:::input
+    end
+
+    UniqueImage -->|"Extract Coordinates"| GeoExtract
+    GeoExtract --> CheckGeo
+    CheckGeo -->|"Invalid / Spoofed"| RejectGeo
+    CheckGeo -->|"Valid Match"| SpatialDedup
+    SpatialDedup -->|"Assign GIS Zone"| GeoVerified
+
     %% ----- 4. LAYER 3: INFRASTRUCTURE CV ENGINE -----
     subgraph Layer_3 ["Layer 3: Infrastructure CV Engine"]
         direction TB
@@ -205,18 +221,18 @@ graph TD
         CatPotholes["Potholes"]:::bucket
         CatGarbage["Garbage"]:::bucket
         CatLights["Streetlights"]:::bucket
-        FinalDB[("Central Relational Database")]:::db
+        FinalDB[("Central Relational Database<br>+ GIS Data")]:::db
     end
 
-    UniqueImage -->|"Verified Image"| VisionClass
+    GeoVerified -->|"Verified Tensor"| VisionClass
     VisionClass -->|"Categorize"| CatPotholes
     VisionClass -->|"Categorize"| CatGarbage
     VisionClass -->|"Categorize"| CatLights
     
     %% Save classified issues and clean text to DB
-    CatPotholes -->|"Save Issue Data"| FinalDB
-    CatGarbage -->|"Save Issue Data"| FinalDB
-    CatLights -->|"Save Issue Data"| FinalDB
+    CatPotholes -->|"Save Issue + GPS"| FinalDB
+    CatGarbage -->|"Save Issue + GPS"| FinalDB
+    CatLights -->|"Save Issue + GPS"| FinalDB
     IssuePosts -.->|"Save Clean Text"| FinalDB
 
     %% ----- 5. LAYER 4: BEHAVIORAL ANALYTICS -----
@@ -247,6 +263,7 @@ graph TD
     %% ==========================================
     style Layer_1 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style Layer_2 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Layer_2_5 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style Layer_3 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style Layer_4 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
