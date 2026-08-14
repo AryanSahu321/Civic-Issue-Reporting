@@ -837,3 +837,119 @@ graph TD
     style DataLayer fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style Compliance fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
+
+# Database Schema Map (Dark Theme Optimized)
+*  Highly-Styled Structural Map (graph TD): Perfectly matches the custom color-coding, layout, and styling constraints of your previous diagrams. It visually incorporates the Point-in-Polygon (PiP) trigger.
+```mermaid
+graph TD
+    %% ==========================================
+    %% GLOBAL STYLING (DARK THEME OPTIMIZED)
+    %% ==========================================
+    classDef dbNode fill:#263238,stroke:#546e7a,stroke-width:2px,color:#ffffff,text-align:left;
+    classDef extNode fill:#37474f,stroke:#ffb74d,stroke-width:2px,color:#ffffff,text-align:center,stroke-dasharray: 5 5;
+    
+    linkStyle default stroke:#90a4ae,stroke-width:2px,fill:none;
+
+    %% ==========================================
+    %% TABLES (ENTITIES)
+    %% ==========================================
+    USERS["<b>USERS</b><br/>-------------------------<br/>🔑 user_id (SERIAL)<br/>▪️ username (VARCHAR)<br/>▪️ email (VARCHAR)<br/>▪️ password_hash (VARCHAR)<br/>▪️ role (VARCHAR)<br/>▪️ created_at (TIMESTAMP)"]:::dbNode
+    
+    WARDS["<b>WARDS (GIS)</b><br/>-------------------------<br/>🔑 ward_id (SERIAL)<br/>▪️ ward_name (VARCHAR)<br/>▪️ city (VARCHAR)<br/>🌐 boundary (GEOMETRY: MultiPolygon)"]:::dbNode
+    
+    POSTS["<b>POSTS</b><br/>-------------------------<br/>🔑 post_id (SERIAL)<br/>🔗 user_id (INT)<br/>▪️ post_type (VARCHAR)<br/>▪️ content (TEXT)<br/>▪️ image_url (VARCHAR)<br/>▪️ status (VARCHAR)<br/>📍 location (GEOMETRY: Point)<br/>🔗 ward_id (INT)<br/>▪️ created_at (TIMESTAMP)<br/>▪️ updated_at (TIMESTAMP)"]:::dbNode
+    
+    AUDIT_LOGS["<b>AUDIT_LOGS</b><br/>-------------------------<br/>🔑 log_id (SERIAL)<br/>🔗 actor_id (INT)<br/>▪️ action (VARCHAR)<br/>▪️ details (JSONB)<br/>▪️ ip_address (VARCHAR)<br/>▪️ timestamp (TIMESTAMP)"]:::dbNode
+    
+    SENTIMENT["<b>SENTIMENT_METRICS</b><br/>-------------------------<br/>🔑 metric_id (SERIAL)<br/>🔗 ward_id (INT)<br/>🔗 post_id (INT)<br/>▪️ sentiment_category (VARCHAR)<br/>▪️ compound_score (NUMERIC)<br/>▪️ calculated_at (TIMESTAMP)"]:::dbNode
+
+    TRIGGER["<b>PiP SPATIAL TRIGGER</b><br/>-------------------------<br/>⚡ assign_ward_to_post()<br/><i>ST_Contains(boundary, location)</i>"]:::extNode
+
+    %% ==========================================
+    %% RELATIONSHIPS
+    %% ==========================================
+    USERS -->|"1 : N<br>submits"| POSTS
+    USERS -->|"1 : N<br>logs action"| AUDIT_LOGS
+    WARDS -->|"1 : N<br>aggregates"| SENTIMENT
+    POSTS -->|"1 : 1<br>analyzed as"| SENTIMENT
+    
+    %% SPATIAL JOIN
+    WARDS -.->|"Provides boundary"| TRIGGER
+    POSTS -.->|"BEFORE INSERT/UPDATE"| TRIGGER
+    TRIGGER -.->|"Auto-assigns FK<br>(ward_id)"| POSTS
+
+    %% ==========================================
+    %% HIGHLIGHT BORDERS
+    %% ==========================================
+    style USERS stroke:#64b5f6
+    style WARDS stroke:#ffb74d
+    style POSTS stroke:#81c784
+    style AUDIT_LOGS stroke:#ff80ab
+    style SENTIMENT stroke:#e040fb
+```
+
+# Standard Native ERD (erDiagram): 
+*  The strict technical standard for entity-relationship documentation.
+
+```mermaid
+erDiagram
+    %% ==========================================
+    %% DATABASE ERD: Civic-Issue-Reporting
+    %% ==========================================
+    
+    USERS {
+        SERIAL user_id PK
+        VARCHAR username UK
+        VARCHAR email UK
+        VARCHAR password_hash
+        VARCHAR role "Citizen, WardAdmin, StateAdmin"
+        TIMESTAMP created_at
+    }
+    
+    WARDS {
+        SERIAL ward_id PK
+        VARCHAR ward_name
+        VARCHAR city
+        GEOMETRY boundary "MultiPolygon, SRID 4326 (GIST)"
+    }
+    
+    POSTS {
+        SERIAL post_id PK
+        INT user_id FK
+        VARCHAR post_type "Issue, ThankYou"
+        TEXT content
+        VARCHAR image_url
+        VARCHAR status "Pending...Escalated"
+        GEOMETRY location "Point, SRID 4326 (GIST)"
+        INT ward_id FK "Auto-assigned via PostGIS PiP"
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    
+    AUDIT_LOGS {
+        SERIAL log_id PK
+        INT actor_id FK "References users(user_id)"
+        VARCHAR action
+        JSONB details
+        VARCHAR ip_address
+        TIMESTAMP timestamp
+    }
+    
+    SENTIMENT_METRICS {
+        SERIAL metric_id PK
+        INT ward_id FK
+        INT post_id FK
+        VARCHAR sentiment_category "Haters, Supporters, Neutrals"
+        NUMERIC compound_score "-1.000 to +1.000"
+        TIMESTAMP calculated_at
+    }
+
+    %% ==========================================
+    %% RELATIONSHIPS & CARDINALITY
+    %% ==========================================
+    USERS ||--o{ POSTS : "submits"
+    USERS ||--o{ AUDIT_LOGS : "triggers"
+    WARDS ||--o{ POSTS : "contains (spatial ST_Contains)"
+    POSTS ||--o{ SENTIMENT_METRICS : "analyzed for"
+    WARDS ||--o{ SENTIMENT_METRICS : "aggregated by"
+```
