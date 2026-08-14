@@ -577,4 +577,27 @@ Yeh schema strict JSON payload aur headers ko define karta hai. Ise aap apne Swa
 
 -------
 
+# 2. State Transition Rules & Authorization Matrix
+*  This matrix acts as the exact business logic you will implement in your Node.js auth-service middleware and Express controllers.
 
+| Current State | Trigger / Action | Next State | Authorized Role (Actor) | Code Logic / Note |
+| :--- | :--- | :--- | :--- | :--- |
+| **`NULL`** | User submits multipart payload | **`PENDING_NLP`** | Citizen | Starts Kafka `sync_processing` stream. |
+| **`PENDING_NLP`** | Gemma-2B/ViT detects abuse/deepfake | **`FLAGGED_FRAUD`** | System (AI Microservice) | Automatically flagged; bypasses Ward logic. |
+| **`PENDING_NLP`** | YOLOv8/ViT verifies authenticity | **`SPATIAL_VERIFIED`** | System (AI Microservice) | Triggers Geotag extraction. |
+| **`SPATIAL_VERIFIED`**| PostGIS runs `ST_Contains()` | **`ASSIGNED_TO_WARD`** | System (PostgreSQL Trigger) | Binds to `ward_id`; sends Push Notification. |
+| **`ASSIGNED_TO_WARD`**| Officer starts work | **`UNDER_PROCESS`** | WardAdmin | Updates status on Citizen tracking portal. |
+| **`UNDER_PROCESS`** | Officer completes physical fix | **`RESOLVED`** | WardAdmin | Triggers final success notification. |
+| **`ASSIGNED_TO_WARD`**| 48 hours pass without action | **`ESCALATED`** | System (Cron Job) | Bypasses local permissions; alerts State. |
+| **`ESCALATED`** | Higher authority resolves issue | **`RESOLVED`** | StateAdmin | Cannot be resolved by WardAdmin anymore. |
+
+3. Dry Run (Execution Flow in HINGLISH)
+Is matrix ka main logic permissions aur automated fallbacks ko lock karna hai.
+
+Phase 1 (AI Gatekeeper): Jaise hi Citizen post submit karta hai, status PENDING_NLP hota hai. Is state mein koi human (Admin/Citizen) isko edit nahi kar sakta. Yeh strictly AI Microservices ka domain hai. Agar ViT ko deepfake milta hai, toh yeh turant FLAGGED_FRAUD mein chala jayega.
+
+Phase 2 (Spatial Bind): AI se pass hone ke baad, SPATIAL_VERIFIED state hit hoti hai. Yahan DB trigger apna magic karta hai aur issue ko ASSIGNED_TO_WARD state dekar local dashboard par push kar deta hai.
+
+Phase 3 (Human Intervention & SLA): Ab WardAdmin action leta hai (UNDER_PROCESS). Lekin sabse crucial part SLA (Service Level Agreement) hai. Agar officer ne 48 hours tak us post ko ignore kiya, toh system ka background cron job automatically status ko ESCALATED kar dega. Ek baar escalate hone ke baad, local WardAdmin apni galti chhupane ke liye usko RESOLVED mark nahi kar payega—ab yeh power sirf StateAdmin ke paas hai.
+
+-------
