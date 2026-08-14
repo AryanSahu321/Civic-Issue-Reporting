@@ -623,7 +623,7 @@ graph TD
         K_Sync["Kafka Topic:<br>sync_processing"]:::infra
         K_Async["Kafka Topic:<br>async_analytics"]:::infra
 
-        MC -- "Sends JSON<br>(Text + Base64 Image)" --> API
+        MC -- "Sends JSON<br>(Text + Image + GPS)" --> API
         API -->|"Route Block"| K_Sync
         API -->|"Route Async"| K_Async
     end
@@ -655,9 +655,9 @@ graph TD
     end
 
     %% ==========================================
-    %% 3. LAYER 2: VISION SECURITY
+    %% 3. LAYER 2: VISION SECURITY & GEOTAGGING
     %% ==========================================
-    subgraph L2 ["Layer 2: Vision Security (Fraud & Deepfake)"]
+    subgraph L2 ["Layer 2: Vision Security & Geotagging"]
         direction TB
         pHash["pHash Logic Engine"]:::ai
         DB_Vec[("PostgreSQL / Redis<br>Vector Store")]:::db
@@ -666,16 +666,22 @@ graph TD
         ViT["Generative AI Anomaly Detector<br>(ViT in TensorRT)"]:::ai
         D3{"Decision 3:<br>Is Deepfake?"}:::infra
         Reject["Reject"]:::client
-        PassAuth["Pass to Layer 3<br>(Authentic)"]:::infra
+        GeoEngine["Geo & Spatial Engine<br>(EXIF vs GPS & Ward Mapping)"]:::ai
+        D_Geo{"Valid GPS Match?"}:::infra
+        GeoReject["Reject: Spoofed / Missing GPS"]:::client
+        PassAuth["Pass Spatially Verified Data to Layer 3"]:::infra
 
-        Issue -- "Base64 Image" --> pHash
+        Issue -- "Image + GPS Metadata" --> pHash
         pHash <-->|"Queries for exact matches"| DB_Vec
         pHash --> D2
         D2 -- "Yes" --> Fraud
         D2 -- "No (Unique)" --> ViT
         ViT --> D3
         D3 -- "Yes" --> Reject
-        D3 -- "No (Authentic)" --> PassAuth
+        D3 -- "No (Authentic)" --> GeoEngine
+        GeoEngine --> D_Geo
+        D_Geo -- "No" --> GeoReject
+        D_Geo -- "Yes" --> PassAuth
     end
 
     %% ==========================================
@@ -688,7 +694,7 @@ graph TD
         Potholes["Potholes"]:::infra
         Dumping["Illegal Dumping"]:::infra
         Wires["Wire Hazards"]:::infra
-        DB_Meta[("PostgreSQL<br>(Metadata)")]:::db
+        DB_Meta[("PostgreSQL<br>(Metadata + GIS Ward)")]:::db
         DB_S3[("AWS S3 Bucket<br>(Raw Image)")]:::db
         Push["Success Push Notification"]:::client
 
@@ -698,9 +704,9 @@ graph TD
         BBox --> Dumping
         BBox --> Wires
         
-        Potholes -->|"Write Metadata"| DB_Meta
-        Dumping -->|"Write Metadata"| DB_Meta
-        Wires -->|"Write Metadata"| DB_Meta
+        Potholes -->|"Write Metadata + Ward"| DB_Meta
+        Dumping -->|"Write Metadata + Ward"| DB_Meta
+        Wires -->|"Write Metadata + Ward"| DB_Meta
         
         Potholes -->|"Write Raw Image"| DB_S3
         Dumping -->|"Write Raw Image"| DB_S3
@@ -716,11 +722,11 @@ graph TD
     subgraph L4 ["Layer 4: Sentiment Analytics (Asynchronous Engine)"]
         direction TB
         SentEng["Sentiment Engine<br>(VADER + RoBERTa)"]:::ai
-        Agg["Aggregates Polarity Scores"]:::infra
+        Agg["Aggregates Polarity Scores<br>+ Ward Clustering"]:::infra
         Haters["Haters"]:::infra
         Neutrals["Neutrals"]:::infra
         Supporters["Supporters"]:::infra
-        Dash["Live Admin Dashboard"]:::client
+        Dash["Live Admin Dashboard<br>(Ward Heatmaps)"]:::client
 
         K_Async -.->|"Async Text Feed"| SentEng
         SentEng --> Agg
