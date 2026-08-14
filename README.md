@@ -444,6 +444,9 @@ graph TD
     Sigmoid -->|"Synthetic Frequencies Detected"| AIGenerated
     GeoFlag --> GeoTampered
 ```
+
+
+
 ## 3. Civic Issue Classification (YOLOv8 / MobileNetV2)
 *  Object detection aur classification models (jaise YOLO) ka structure simple CNN se thoda alag hota hai kyunki inhein objects ki location (bounding boxes) bhi predict karni hoti hai.
 
@@ -452,20 +455,18 @@ graph TD
     %% ==========================================
     %% STYLING & COLOR CODING
     %% ==========================================
-    %% Green for Input Layer
     classDef inputLayer fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#000;
-    %% Blue for Backbone/Neck (Hidden Layers)
     classDef hiddenBlock fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000;
-    %% Red for Output Layer & Predictions
     classDef outputLayer fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#000;
     classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000,shape:stadium;
 
     %% ==========================================
-    %% 1. INPUT LAYER
+    %% 1. INPUT LAYER (WITH SPATIAL BINDING)
     %% ==========================================
-    subgraph Sub_Input ["1. Input Layer: Vision Grid"]
+    subgraph Sub_Input ["1. Input Layer: Vision Grid & Spatial Metadata"]
         direction TB
         InputGrid["Pre-processed Image Grid (e.g., 640x640x3)"]:::inputLayer
+        VerifiedGPS["Verified GPS Coordinates & Ward Metadata"]:::inputLayer
     end
 
     %% ==========================================
@@ -483,62 +484,65 @@ graph TD
     InputGrid -->|"Tensor Feed"| Backbone
 
     %% ==========================================
-    %% 3. OUTPUT LAYER (THE HEAD)
+    %% 3. OUTPUT LAYER (THE HEAD & GIS MAPPING)
     %% ==========================================
-    subgraph Sub_Output ["3. Output Layer: The Detection Head"]
+    subgraph Sub_Output ["3. Output Layer: Detection Head & GIS Routing"]
         direction TB
         BBRegressor["Bounding Box Regressor<br>Coordinates: (x, y, w, h)"]:::outputLayer
         ClassPredictor["Class Predictor<br>Object Probabilities"]:::outputLayer
         NMS["Non-Maximum Suppression (NMS)<br>Filter overlapping/duplicate boxes"]:::outputLayer
+        GISBind["GIS Spatial Engine<br>Bind Bounding Boxes to Ward Coordinates"]:::outputLayer
 
         BBRegressor --> NMS
         ClassPredictor --> NMS
+        NMS --> GISBind
     end
 
     %% Connect Hidden to Output
     Neck -->|"Split Dense Tensors"| BBRegressor
     Neck -->|"Split Dense Tensors"| ClassPredictor
+    VerifiedGPS -->|"Attach Spatial Context"| GISBind
 
     %% ==========================================
     %% 4. FINAL PREDICTION
     %% ==========================================
-    subgraph Sub_Prediction ["4. Final Prediction: Civic Issue Localization"]
+    subgraph Sub_Prediction ["4. Final Prediction: Spatially Localized Civic Issues"]
         direction TB
-        PredPothole(["Localized: Pothole [94%]"]):::predictLayer
-        PredGarbage(["Localized: Garbage [89%]"]):::predictLayer
-        PredLight(["Localized: Broken Streetlight [91%]"]):::predictLayer
+        PredPothole(["Localized & Geotagged: Pothole [94%]"]):::predictLayer
+        PredGarbage(["Localized & Geotagged: Garbage [89%]"]):::predictLayer
+        PredLight(["Localized & Geotagged: Broken Streetlight [91%]"]):::predictLayer
     end
 
     %% Connect Output to Predictions
-    NMS -->|"Highest Confidence Match"| PredPothole
-    NMS -->|"Highest Confidence Match"| PredGarbage
-    NMS -->|"Highest Confidence Match"| PredLight
+    GISBind -->|"Ward-Assigned Match"| PredPothole
+    GISBind -->|"Ward-Assigned Match"| PredGarbage
+    GISBind -->|"Ward-Assigned Match"| PredLight
 ```
+
+
+
+
+
 ## 4. Sentiment Analytics Engine (VADER / RoBERTa)
 *  Yeh system background mein chalta hai. Agar model RoBERTa (Deep Learning) hai, toh architecture BERT jaisa hoga, par agar VADER (Lexicon/Rule-based) use ho raha hai, toh internal logic math aur dictionaries par base hoga.
 
 ```mermaid
 graph TD
     %% ==========================================
-    %% STYLING & COLOR CODING
+    %% STYLING & COLOR CODING (DARK THEME OPTIMIZED)
     %% ==========================================
-    %% Green for Input Layer
     classDef inputLayer fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#000;
-    
-    %% Blue for Analysis Logic (Hidden Layers)
     classDef hiddenBlock fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000;
-    classDef logicDec fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000,shape:diamond;
-    
-    %% Red for Output Layers & Prediction Buckets
+    classDef logicDec fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000;
     classDef outputLayer fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#000;
-    classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000,shape:stadium;
+    classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000;
 
     %% ==========================================
-    %% 1. INPUT LAYER
+    %% 1. INPUT LAYER (WITH SPATIAL METADATA)
     %% ==========================================
-    subgraph Sub_Input ["1. Input Layer: Data Ingestion"]
+    subgraph Sub_Input ["1. Input Layer: Data Ingestion & Spatial Context"]
         direction TB
-        RawComments["Raw Public Comments"]:::inputLayer
+        RawComments["Raw Public Comments + Ward GPS Metadata"]:::inputLayer
         Preprocess["Text Preprocessing<br>(Removing URLs, Stop words)"]:::inputLayer
         
         RawComments --> Preprocess
@@ -550,20 +554,19 @@ graph TD
     subgraph Sub_Hidden ["2. Hidden Layers: Semantic Analysis (Hybrid Engine)"]
         direction TB
         Embeddings["Embedding Layer<br>Context-aware embeddings"]:::hiddenBlock
-        Attention["Attention Mechanism<br>Weighing emotional keywords (e.g., 'terrible', 'amazing', 'fix')"]:::hiddenBlock
+        Attention["Attention Mechanism<br>Weighing emotional keywords"]:::hiddenBlock
         Polarity["Polarity Scoring Logic<br>Calculating compound scores (-1.0 to +1.0)"]:::hiddenBlock
 
         Embeddings --> Attention
         Attention --> Polarity
     end
 
-    %% Connect Input to Hidden
-    Preprocess -->|"Cleaned Text Tokens"| Embeddings
+    Preprocess -->|"Cleaned Text Tokens + Ward ID"| Embeddings
 
     %% ==========================================
     %% 3. OUTPUT LAYER
     %% ==========================================
-    subgraph Sub_Output ["3. Output Layer: Threshold Mapping Rules"]
+    subgraph Sub_Output ["3. Output Layer: Threshold Mapping & Spatial Tagging"]
         direction TB
         ScoreCheck{"Compound Score?"}:::logicDec
         RouteHater["Route to Haters"]:::outputLayer
@@ -575,26 +578,23 @@ graph TD
         ScoreCheck -->|"Else (-0.29 to +0.29)"| RouteNeutral
     end
 
-    %% Connect Hidden to Output
-    Polarity -->|"Final Decimal Score"| ScoreCheck
+    Polarity -->|"Final Decimal Score + Spatial Link"| ScoreCheck
 
     %% ==========================================
-    %% 4. FINAL PREDICTION
+    %% 4. FINAL PREDICTION & SPATIAL DASHBOARD
     %% ==========================================
-    subgraph Sub_Prediction ["4. Final Prediction: Sentiment Bucketing"]
+    subgraph Sub_Prediction ["4. Final Prediction: Ward-Wise Sentiment Bucketing"]
         direction TB
-        BucketHaters(["[Haters] Bucket"]):::predictLayer
-        BucketSupporters(["[Supporters] Bucket"]):::predictLayer
-        BucketNeutrals(["[Neutrals] Bucket"]):::predictLayer
-        Dashboard["Analytics Dashboard<br>(UI Updates & Live Metrics)"]:::outputLayer
+        BucketHaters(["[Haters] Ward Bucket"]):::predictLayer
+        BucketSupporters(["[Supporters] Ward Bucket"]):::predictLayer
+        BucketNeutrals(["[Neutrals] Ward Bucket"]):::predictLayer
+        Dashboard["GIS Analytics Dashboard<br>(Live Ward Heatmaps & Metrics)"]:::outputLayer
     end
 
-    %% Connect Outputs to Final Buckets
     RouteHater --> BucketHaters
     RouteSupporter --> BucketSupporters
     RouteNeutral --> BucketNeutrals
 
-    %% Feed to Dashboard
     BucketHaters --> Dashboard
     BucketSupporters --> Dashboard
     BucketNeutrals --> Dashboard
