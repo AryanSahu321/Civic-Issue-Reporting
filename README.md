@@ -267,6 +267,11 @@ graph TD
     style Layer_3 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style Layer_4 fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
+
+
+
+
+
 ## 1. Text Moderation & Routing (BERT / Gemma-2B) -> Toxic/Policy Classifier
 *  Yeh model text ko samajhne ke liye Transformer architecture ka use karta hai. Is prompt se aapko Multi-Head Attention mechanism ki mapping milegi.
 
@@ -343,6 +348,13 @@ graph TD
     Softmax -->|Probability Distribution| ClassThankYou
     Softmax -->|Probability Distribution| ClassToxic
 ```
+
+
+
+
+
+
+
 ## 2. Fake Media & Fraud Detection (CNN / Vision Transformer)
 *  Yeh model deepfakes ya AI-generated noise pakadne ke liye image ki deep structural frequencies ko analyze karta hai.
 
