@@ -953,3 +953,30 @@ erDiagram
     POSTS ||--o{ SENTIMENT_METRICS : "analyzed for"
     WARDS ||--o{ SENTIMENT_METRICS : "aggregated by"
 ```
+# API Request Flow Diagram
+*  Yeh sequence diagram dikhata hai ki Mobile Client se aane wali single atomic request API Gateway ke through kaise validate aur route hoti hai.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Mobile Client
+    participant WAF as AWS WAF & Rate Limiter
+    participant API as AWS API Gateway
+    participant Auth as Node.js Auth Service
+    participant Kafka as Kafka Queue
+
+    App->>WAF: POST /api/v1/posts/submit (Multipart + GPS Headers)
+    WAF-->>WAF: Security Check (IP, Throttling, TLS 1.3)
+    WAF->>API: Route Traffic
+    
+    API->>Auth: Validate JWT Token (RBAC)
+    alt Invalid Token
+        Auth-->>API: 401 Unauthorized
+        API-->>App: 401 Unauthorized
+    else Valid Token
+        Auth-->>API: 200 OK (User Identity Confirmed)
+        API->>Kafka: Push raw payload to sync_processing topic
+        Kafka-->>API: Ack (Message Queued)
+        API-->>App: 202 Accepted (Issue Pending Processing)
+    end
+```
