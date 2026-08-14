@@ -3,13 +3,20 @@
 ```mermaid
 graph TD
     %% ==========================================
-    %% STYLING & CLASSES
+    %% GLOBAL STYLING (DARK THEME OPTIMIZED)
     %% ==========================================
-    classDef std fill:#cce0ff,stroke:#000000,stroke-width:1px,color:#000
-    classDef dec fill:#ff99cc,stroke:#000000,stroke-width:1px,color:#000
+    %% 1. Default edge style (Brighter Grey for Dark Backgrounds)
+    linkStyle default stroke:#cfd8dc,stroke-width:2px,fill:none;
+
+    %% 2. Node Classes (Brighter Fills, Darker Strokes, Black Text)
+    %% std = Standard nodes (Bright Blue + Navy Stroke)
+    classDef std fill:#82b1ff,stroke:#002171,stroke-width:2px,color:#000
     
-    %% Default edge style
-    linkStyle default stroke:#888888,stroke-width:2px,fill:none;
+    %% dec = Decision nodes (Bright Pink + Deep Maroon Stroke)
+    classDef dec fill:#ff80ab,stroke:#880e4f,stroke-width:2px,color:#000
+    
+    %% db = Database nodes (Bright Yellow + Deep Orange Stroke)
+    classDef db fill:#ffff8d,stroke:#e65100,stroke-width:2px,color:#000
 
     %% ==========================================
     %% PHASE 1: GATEKEEPER ENGINE
@@ -20,8 +27,12 @@ graph TD
     N4 --> D1{"Spam, Abuse, Policy<br>Violation Present?"}:::dec
 
     %% DECISION 1 PATHS
-    D1 --> E1["Terminated<br>Session"]:::std
-    D1 --> N5["Step 2: Fake<br>Media<br>Detection"]:::std
+    D1 -->|"Yes (Spam)"| E1["Terminated<br>Session"]:::std
+    D1 -->|"No (Clean)"| D_Type{"Is Content an<br>Issue or Friendly?"}:::dec
+
+    %% NEW ROUTING: FRIENDLY VS ISSUE
+    D_Type -->|"Civic Issue"| N5["Step 2: Fake<br>Media<br>Detection"]:::std
+    D_Type -->|"Friendly Data<br>& Thank You"| DB_Friendly[("Central Database<br>(Save Friendly Content)")]:::db
 
     %% ==========================================
     %% PHASE 2: FAKE MEDIA DETECTION
@@ -30,15 +41,14 @@ graph TD
     N6 --> D2{"Fake or<br>Duplicated?"}:::dec
 
     %% DECISION 2 & 3 PATHS
-    D2 --> D3{"Fake or<br>Fraud?"}:::dec
+    D2 -->|"Yes"| D3{"Fake or<br>Fraud?"}:::dec
     D3 --> N7["Flag for<br>Review"]:::std
     D3 --> N8["Automated<br>Reject"]:::std
     
-    %% Long lines pushed to the bottom right
     N7 --> BRE1["END: Post<br>Removed /<br>Flagged"]:::std
     N8 --> BRE2["END: Post<br>Removed"]:::std
 
-    D2 --> N9["Step 3: Central<br>Database &<br>Analytics Hub"]:::std
+    D2 -->|"No (Authentic)"| N9["Step 3: Central<br>Database &<br>Analytics Hub"]:::std
 
     %% ==========================================
     %% PHASE 3: SENTIMENT & PERCEPTION
@@ -47,12 +57,10 @@ graph TD
     N10 --> N11["Sentiment Observation<br>Engine<br>(VADER/TextBlob/<br>BERT NLP)"]:::std
     N11 --> N12["Public<br>Perception<br>Categories"]:::std
     
-    %% Split into 3 parallel nodes
     N12 --> P1A["Neutrals"]:::std
     N12 --> P1B["Supporters"]:::std
     N12 --> P1C["Haters"]:::std
     
-    %% Merge back
     P1A --> N13["Merge Category<br>Analysis"]:::std
     P1B --> N13
     P1C --> N13
@@ -65,15 +73,16 @@ graph TD
     N15 --> N16["Visibility Toggle:<br>LOCAL / STATE Level"]:::std
     N16 --> N17["Step 5: Public<br>Viewer Status<br>Portal"]:::std
 
+    %% DIRECT ROUTE FOR FRIENDLY CONTENT TO STEP 5
+    DB_Friendly -->|"Publish directly<br>to Portal"| N17
+
     N17 --> N18["Secure Citizen<br>Login"]:::std
     N18 --> N19["Track Only Their<br>Problem.<br>Where is my post?"]:::std
     N19 --> N20["Status<br>Updates:"]:::std
 
-    %% Split into 2 parallel nodes
     N20 --> P2A["Under<br>Process"]:::std
     N20 --> P2B["Solved"]:::std
 
-    %% Merge back
     P2A --> N21["Step 6:<br>Automated Status<br>Report Creator"]:::std
     P2B --> N21
 
@@ -82,33 +91,35 @@ graph TD
     %% ==========================================
     N21 --> D4{"Solved at Local<br>Level?"}:::dec
 
-    %% Left Path (Dashed)
-    D4 -.-> N22["Auto-Escalates /<br>Email status report to<br>higher level authority.<br>No local level permission<br>needed."]:::std
+    D4 -.->|"No"| N22["Auto-Escalates /<br>Email status report to<br>higher level authority.<br>No local level permission<br>needed."]:::std
     N22 --> T1["END:<br>Escalated"]:::std
 
-    %% Down Path
-    D4 --> N23["Update<br>Status: Solved"]:::std
+    D4 -->|"Yes"| N23["Update<br>Status: Solved"]:::std
     N23 --> N24["Push to<br>Central<br>Database"]:::std
     N24 --> T2["END:<br>Resolved"]:::std
 
     %% ==========================================
-    %% LINK STYLING FOR STANDALONE DIAGRAM
+    %% LINK STYLING (Neon Green/Red Logic Arrows)
     %% ==========================================
-    %% Decision 1 Right Path (Green)
-    linkStyle 4 stroke:#006600,stroke-width:2px;
-    %% Decision 1 Down Path (Red)
-    linkStyle 5 stroke:#cc0000,stroke-width:2px;
+    %% D1 Yes (Spam) -> Bright Red
+    linkStyle 4 stroke:#ff1744,stroke-width:2px;
+    %% D1 No (Clean) -> Bright Green
+    linkStyle 5 stroke:#00e676,stroke-width:2px;
     
-    %% Decision 2 Right Path (Green)
-    linkStyle 8 stroke:#006600,stroke-width:2px;
-    %% Decision 2 Down Path (Red)
-    linkStyle 13 stroke:#cc0000,stroke-width:2px;
+    %% D2 Yes (Fake) -> Bright Red
+    linkStyle 10 stroke:#ff1744,stroke-width:2px;
+    %% D2 No (Authentic) -> Bright Green
+    linkStyle 15 stroke:#00e676,stroke-width:2px;
     
-    %% Decision 4 Left Path (Red Dashed)
-    linkStyle 35 stroke:#cc0000,stroke-width:2px,stroke-dasharray: 5 5;
-    %% Decision 4 Down Path (Green)
-    linkStyle 37 stroke:#006600,stroke-width:2px;
+    %% D4 No (Escalate) -> Bright Red Dashed
+    linkStyle 38 stroke:#ff1744,stroke-width:2px,stroke-dasharray: 5 5;
+    %% D4 Yes (Solved) -> Bright Green
+    linkStyle 40 stroke:#00e676,stroke-width:2px;
 ```
+
+
+
+
 ## model working flow 
 ```mermaid
 graph TD
