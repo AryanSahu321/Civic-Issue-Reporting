@@ -526,3 +526,46 @@ This asynchronous background engine ensures that the heavy NLP sentiment models 
 * Finally, these aggregated metrics are pushed to the Live Admin Dashboard, updating the GIS Ward Heatmaps in real-time for government officials.
 
 -----
+
+#  ER Diagram Explaination
+
+Chalo is Database Architecture aur ERD ko detail mein samajhte hain. Yeh normal relational database nahi hai; isme **PostGIS** ka use hua hai jo spatial (geographical) data ko handle karne ke liye industry standard hai.
+
+Here is the technical breakdown in HINGLISH of how the different pieces fit together:
+
+### 1. 👥 USERS Table (Identity & Access)
+
+Yeh table system ke authentication aur authorization ko handle karti hai.
+
+* **Concept:** Isme ek strict `role` constraint (Citizen, WardAdmin, StateAdmin) laga hua hai. Iska matlab jab API Gateway se request aayegi, toh JWT token mein yahi roles encode honge.
+* **Link:** Yeh table baaki system ka anchor hai. Har `POST` aur har `AUDIT_LOG` ek `user_id` se connected hota hai.
+
+### 2. 🗺️ WARDS Table (The GIS Hub)
+
+Yeh system ka geographical foundation hai.
+
+* **Concept:** Isme normal text ke bajaye `boundary` naam ka ek special column hai jiska type `GEOMETRY(MultiPolygon, 4326)` hai. SRID 4326 ka matlab global GPS coordinates (Latitude/Longitude). Yahan city ke har ward (zone) ka pura naksha (map boundaries) store hota hai.
+* **Performance:** Kyunki geographical queries heavy hoti hain, humne is par ek **GIST (Generalized Search Tree) Index** lagaya hai taaki spatial lookups super-fast hon.
+
+### 3. 📝 POSTS Table (The Core Engine)
+
+Jab citizen app se koi civic issue (jaise pothole ya kachra) report karta hai, toh main data yahan insert hota hai.
+
+* **Concept:** Isme user ki issue text, image ki AWS S3 link (`image_url`), aur sabse zaroori `location` store hoti hai jiska type `GEOMETRY(Point)` hai. Yeh 'Point' user ke phone ka live GPS coordinate hai.
+* **Tracking:** Iska `status` column ek state-machine ki tarah kaam karta hai (`Pending` se `Solved` ya `Escalated` tak).
+
+### 4. ⚡ The Real Magic: PiP (Point-in-Polygon) Trigger
+
+Yeh is database design ka sabse bada masterstroke hai.
+
+* **Concept:** Bina PostGIS ke, backend ko manually calculate karna padta ki user ka GPS coordinate kis ward mein aata hai, jo ki slow aur complex hota. Humne yahan ek **Database Trigger** likha hai: `assign_ward_to_post()`.
+* **Execution (Dry Run logic):** Jaise hi POSTS table mein nayi row insert hoti hai, trigger activate hota hai. Woh Post ke `location` (Point) ko uthata hai, aur check karta hai ki yeh point kis Ward ke `boundary` (Polygon) ke andar girta hai using the `ST_Contains()` function. Phir yeh automatically us Post ko correct `ward_id` assign kar deta hai. Zero backend overhead!
+
+### 5. 📊 SENTIMENT_METRICS & AUDIT_LOGS
+
+* **Sentiment Metrics:** Aapka async Python Kafka worker jab VADER aur RoBERTa AI models chala lega, toh unka output (Haters, Supporters, Neutrals aur unka score) is table mein aayega. Is table par query karke Admin Dashboard ka Heatmap banega.
+* **Audit Logs:** Security compliance ke liye, koi bhi State Admin ya Ward Admin system mein jo bhi changes karega (e.g., status 'Solved' mark karna), woh action yahan unke IP address ke saath log hoga.
+
+-----
+
+
