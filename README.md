@@ -32,7 +32,7 @@ graph TD
 
     %% NEW ROUTING: FRIENDLY VS ISSUE
     D_Type -->|"Civic Issue"| N5["Step 2: Fake<br>Media<br>Detection"]:::std
-    D_Type -->|"Friendly Data<br>& Thank You"| DB_Friendly[("Central Database<br>(Save Friendly Content)")]:::db
+    D_Type -->|"Friendly Data<br>& Thank You"| CentralDB[("Central Database")]:::db
 
     %% ==========================================
     %% PHASE 2: FAKE MEDIA DETECTION
@@ -74,7 +74,7 @@ graph TD
     N16 --> N17["Step 5: Public<br>Viewer Status<br>Portal"]:::std
 
     %% DIRECT ROUTE FOR FRIENDLY CONTENT TO STEP 5
-    DB_Friendly -->|"Publish directly<br>to Portal"| N17
+    CentralDB -->|"Publish directly<br>to Portal"| N17
 
     N17 --> N18["Secure Citizen<br>Login"]:::std
     N18 --> N19["Track Only Their<br>Problem.<br>Where is my post?"]:::std
@@ -97,6 +97,12 @@ graph TD
     D4 -->|"Yes"| N23["Update<br>Status: Solved"]:::std
     N23 --> N24["Push to<br>Central<br>Database"]:::std
     N24 --> T2["END:<br>Resolved"]:::std
+
+    %% ==========================================
+    %% NEW SENTIMENT DB CONNECTIONS
+    %% ==========================================
+    CentralDB -.->|"Fetch Past Data"| N11
+    N13 -->|"Push Result to DB"| CentralDB
 
     %% ==========================================
     %% LINK STYLING (Neon Green/Red Logic Arrows)
