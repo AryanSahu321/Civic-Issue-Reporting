@@ -527,7 +527,7 @@ This asynchronous background engine ensures that the heavy NLP sentiment models 
 
 -----
 
-#  ER Diagram Explaination
+# 1. ER Diagram Explaination
 
 Chalo is Database Architecture aur ERD ko detail mein samajhte hain. Yeh normal relational database nahi hai; isme **PostGIS** ka use hua hai jo spatial (geographical) data ko handle karne ke liye industry standard hai.
 
@@ -567,5 +567,14 @@ Yeh is database design ka sabse bada masterstroke hai.
 * **Audit Logs:** Security compliance ke liye, koi bhi State Admin ya Ward Admin system mein jo bhi changes karega (e.g., status 'Solved' mark karna), woh action yahan unke IP address ke saath log hoga.
 
 -----
+
+# 2. OpenAPI / Swagger 3.0 Contract (YAML)
+Yeh schema strict JSON payload aur headers ko define karta hai. Ise aap apne Swagger UI ya API Gateway configurations (AWS API Gateway models) mein directly import kar sakte hain.
+*  High-Density Breakdown:Security (Bearer JWT): Har request ko prove karna hoga ki user authenticated hai. Yeh Node.js auth-service validate karega.
+*  Headers for Metadata: Humne GPS coordinates (X-Device-Latitude, X-Device-Longitude) ko request body mein nahi, balki Headers mein rakha hai. Iska reason yeh hai ki API Gateway headers ko bina multipart body parse kiye fast-read kar sakta hai, jisse geolocation spoofing blocks aur routing decisions millisecond mein liye ja sakein.
+*  Multipart/Form-Data: Content (text) aur image ek saath single request mein jaate hain taaki partial data failure (jaise text save ho gaya par image fail ho gayi) jaisi race conditions avoid ki ja sakein.
+
+
+-------
 
 
