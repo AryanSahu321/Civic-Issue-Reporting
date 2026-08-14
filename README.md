@@ -363,78 +363,86 @@ graph TD
     %% ==========================================
     %% STYLING & COLOR CODING
     %% ==========================================
-    %% Green for Input Layer
     classDef inputLayer fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#000;
-    %% Blue for Convolutional/Hidden Blocks
     classDef convBlock fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000;
-    %% Red for Output & Prediction
+    classDef decision fill:#ffecb3,stroke:#f39c12,stroke-width:2px,color:#000;
     classDef outputLayer fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#000;
-    classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000,shape:stadium;
+    classDef predictLayer fill:#ffe6e6,stroke:#ff0000,stroke-width:2px,color:#000;
 
     %% ==========================================
     %% 1. INPUT LAYER
     %% ==========================================
-    subgraph Sub_Input ["1. Input Layer: Visual & Frequency Data"]
+    subgraph Sub_Input ["1. Input Layer: Multi-Modal Civic Data"]
         direction TB
         RawImage["Raw Civic Image (RGB Matrix)"]:::inputLayer
-        FreqTrans["Frequency Domain Transformation (Optional)"]:::inputLayer
+        EXIFData["EXIF Metadata & Device GPS"]:::inputLayer
+        FreqTrans["Frequency Domain Transformation"]:::inputLayer
         
         RawImage --> FreqTrans
     end
 
     %% ==========================================
-    %% 2. HIDDEN LAYERS (FEATURE EXTRACTION)
+    %% 2. HIDDEN LAYERS (HYBRID FEATURE EXTRACTION)
     %% ==========================================
-    subgraph Sub_Hidden ["2. Hidden Layers: Feature Extraction (CNN Block)"]
+    subgraph Sub_Hidden ["2. Hidden Layers: Visual + Spatial Verification"]
         direction TB
-        Conv2D["Conv2D Layer"]:::convBlock
-        BatchNorm["Batch Normalization"]:::convBlock
-        ReLU["ReLU Activation"]:::convBlock
-        MaxPool["Max Pooling (Downsampling)"]:::convBlock
-        Dropout["Dropout"]:::convBlock
-        FeatureMaps["Noise & Artifact Feature Maps"]:::convBlock
-
-        Conv2D --> BatchNorm
-        BatchNorm --> ReLU
-        ReLU --> MaxPool
-        MaxPool --> Dropout
         
-        %% Loop representation for Deep CNNs
-        Dropout -.->|"Repeat Block N Times"| Conv2D
-        Dropout --> FeatureMaps
+        subgraph CNN_Branch ["Visual Artifact Analysis (CNN/ViT)"]
+            direction TB
+            Conv2D["Conv2D Layer"]:::convBlock
+            BatchNorm["Batch Normalization"]:::convBlock
+            ReLU["ReLU Activation"]:::convBlock
+            MaxPool["Max Pooling (Downsampling)"]:::convBlock
+            FeatureMaps["Noise & Artifact Feature Maps"]:::convBlock
+
+            Conv2D --> BatchNorm --> ReLU --> MaxPool --> FeatureMaps
+        end
+
+        subgraph Geo_Branch ["Metadata & Geolocation Engine"]
+            direction TB
+            GeoValidator["EXIF & Geo-Validator<br>(Check Stripped Tags / Device vs Metadata Match)"]:::convBlock
+            GeoDecision{"Valid GPS & Match?"}:::decision
+            GeoFlag["Flag: Recycled / Geo-Tampered"]:::outputLayer
+
+            GeoValidator --> GeoDecision
+            GeoDecision -->|"No (Stripped / Mismatched)"| GeoFlag
+        end
     end
 
-    %% Connect Input to Hidden
-    FreqTrans -->|"Pre-processed Matrices"| Conv2D
+    %% Connect Inputs to Hidden Branches
+    FreqTrans --> Conv2D
+    EXIFData --> GeoValidator
 
     %% ==========================================
     %% 3. OUTPUT LAYER
     %% ==========================================
-    subgraph Sub_Output ["3. Output Layer: Aggregation"]
+    subgraph Sub_Output ["3. Output Layer: Multimodal Aggregation"]
         direction TB
-        GAP["Global Average Pooling"]:::outputLayer
+        GAP["Global Average Pooling (Visual Maps)"]:::outputLayer
         Dense["Dense (Fully Connected) Layer"]:::outputLayer
-        Sigmoid["Sigmoid Activation"]:::outputLayer
+        Sigmoid["Sigmoid / Softmax Classification Hub"]:::outputLayer
 
         GAP --> Dense
+        GeoDecision -->|"Yes (Verified Match)"| Dense
         Dense --> Sigmoid
     end
 
-    %% Connect Hidden to Output
-    FeatureMaps -->|"Flattened / Pooled Maps"| GAP
+    FeatureMaps --> GAP
 
     %% ==========================================
     %% 4. FINAL PREDICTION
     %% ==========================================
-    subgraph Sub_Prediction ["4. Final Prediction: Anomaly Classification"]
+    subgraph Sub_Prediction ["4. Final Prediction: Fraud & Tamper Classification"]
         direction TB
-        AuthMedia(["Authentic Media"]):::predictLayer
-        FakeMedia(["AI-Generated / Fake"]):::predictLayer
+        AuthMedia(["Authentic Media (Verified GPS & Real)"]):::predictLayer
+        AIGenerated(["AI-Generated / Deepfake"]):::predictLayer
+        GeoTampered(["Recycled Photo / Location Fraud"]):::predictLayer
     end
 
     %% Connect Output to Predictions
-    Sigmoid -->|"Probability < 0.5"| AuthMedia
-    Sigmoid -->|"Probability >= 0.5"| FakeMedia
+    Sigmoid -->|"Clean Visuals & Valid GPS"| AuthMedia
+    Sigmoid -->|"Synthetic Frequencies Detected"| AIGenerated
+    GeoFlag --> GeoTampered
 ```
 ## 3. Civic Issue Classification (YOLOv8 / MobileNetV2)
 *  Object detection aur classification models (jaise YOLO) ka structure simple CNN se thoda alag hota hai kyunki inhein objects ki location (bounding boxes) bhi predict karni hoti hai.
