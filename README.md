@@ -1012,3 +1012,74 @@ stateDiagram-v2
     ESCALATED --> RESOLVED : State Admin Intervenes
     RESOLVED --> [*]
 ```
+# 1. Circuit Breaker & Fallback Architecture 
+*  Yeh flowchart dikhata hai ki jab GPU pod overload hota hai ya EXIF data missing hota hai, toh system gracefully kaise degrade karta hai.
+*  Yeh Circuit Breakers, Fallbacks, aur Dead Letter Queue (DLQ) strategy kisi bhi production-grade distributed system ki backbone hoti hai, especially jab aap heavy GPU clusters (YOLOv8/ViT) run kar rahe hon. Agar ek microservice crash hoti hai, toh humein ensure karna hai ki cascading failure na ho aur mobile app down na ho.
+
+```mermaid
+graph TD
+    %% ==========================================
+    %% GLOBAL STYLING (GITHUB SAFE & TRANSPARENT)
+    %% ==========================================
+    classDef client fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000;
+    classDef cb fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000;
+    classDef ai fill:#64b5f6,stroke:#0d47a1,stroke-width:2px,color:#000;
+    classDef dlq fill:#ff5252,stroke:#b71c1c,stroke-width:2px,color:#000;
+    classDef db fill:#fff176,stroke:#f57f17,stroke-width:2px,color:#000;
+
+    linkStyle default stroke:#b0bec5,stroke-width:2px,fill:none;
+
+    Input["Kafka Topic:<br>sync_processing"]:::client
+    
+    subgraph Circuit_Breaker ["Circuit Breaker (Opossum/Resilience4j)"]
+        direction TB
+        StateCheck{"Is Circuit<br>OPEN?"}:::cb
+    end
+
+    subgraph GPU_Cluster ["AI Vision Cluster (YOLO/ViT)"]
+        direction TB
+        Inference["Process Image Tensor"]:::ai
+        Crash{"Memory Spike /<br>Timeout?"}:::cb
+    end
+
+    subgraph Fallback_DLQ ["Fallback & Recovery"]
+        direction TB
+        DLQ["Kafka DLQ:<br>gpu_retry_dlq"]:::dlq
+        StatusUpdate["Update DB Status:<br>Delayed_Processing"]:::db
+    end
+
+    %% Flow
+    Input --> StateCheck
+    StateCheck -->|"No (CLOSED)"| Inference
+    StateCheck -->|"Yes (OPEN)"| DLQ
+    
+    Inference --> Crash
+    Crash -->|"Success"| GeoLogic["GeoTag Engine"]:::ai
+    Crash -->|"Fail (Crash/Timeout)"| DLQ
+    DLQ --> StatusUpdate
+
+    %% GeoTag Fallback Logic
+    subgraph Geo_Fallback ["Geotag Fallback Engine"]
+        direction TB
+        CheckEXIF{"EXIF GPS<br>Exists?"}:::cb
+        UseEXIF["Use EXIF Data"]:::ai
+        CheckHeader{"Live GPS Headers<br>Exist?"}:::cb
+        UseHeader["Fallback to Mobile<br>GPS Headers"]:::ai
+        RejectFraud["Reject: Spoofed / Missing"]:::dlq
+
+        CheckEXIF -->|"Yes"| UseEXIF
+        CheckEXIF -->|"No (Stripped)"| CheckHeader
+        CheckHeader -->|"Yes"| UseHeader
+        CheckHeader -->|"No"| RejectFraud
+    end
+
+    GeoLogic --> CheckEXIF
+
+    %% ==========================================
+    %% SUBGRAPH TRANSPARENCY STYLING
+    %% ==========================================
+    style Circuit_Breaker fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style GPU_Cluster fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Fallback_DLQ fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Geo_Fallback fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+```
