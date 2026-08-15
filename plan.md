@@ -32,7 +32,6 @@ However, before you transition from the **Design Phase** to the **Development (C
 * **What's needed:** A strategy for how your AI models (Gemma-2B, ViT, YOLOv8) will be served and updated.
 * **Why it matters for your system:** Running multiple deep learning models simultaneously in a production cluster requires heavy RAM/VRAM. You should decide whether you are using **ONNX Runtime** or **Triton Inference Server** to containerize and serve these models efficiently without causing latency spikes on your API gateway.
 
-Act as an expert system designer and full-stack/AI architect. We are actively developing a production-grade "Civic-Issue-Reporting Platform"[cite: 5]. 
 
 Here is the complete architectural baseline, technical stack, and data structure defined so far:
 
