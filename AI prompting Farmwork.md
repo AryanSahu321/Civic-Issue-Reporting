@@ -52,3 +52,35 @@ If the AI starts hallucinating standard CRUD apps instead of our B2G Spatial Eng
 2. Re-upload the `README`, `README2`, and `plan` files.
 3. Re-paste the Universal Prompt and Role Prompt.
 4. Paste the last working snippet of code and resume.
+
+------
+
+### Technologies will use in this project 
+
+Here is the expanded and highly detailed technology stack table. As requested, Flutter has been completely removed, locking the frontend strictly into the JavaScript/TypeScript ecosystem with React Native, which perfectly complements your Node.js backend and Server-Driven UI architecture.
+
+### Comprehensive Technology Stack & Architectural Blueprint
+
+| Architectural Domain | Technology / Framework | Deep-Dive Implementation Details & Purpose |
+| --- | --- | --- |
+| **Mobile Client** | **React Native (TypeScript)** | Pure JS/TS cross-platform frontend. Handles secure local storage (Keychain/EncryptedSharedPreferences), background GPS geofencing, client-side EXIF extraction, and enables Over-The-Air (OTA) updates via CodePush. |
+| **Mobile Client** | **Server-Driven UI (SDUI)** | Strict client-side JSON schema parser. Receives backend JSON to dynamically render native components (surveys, modules) instantly. Includes hard drop/quarantine protocols for unrecognized schemas to prevent RCE. |
+| **API Gateway & Perimeter** | **Kong API Gateway** | Central perimeter operating at C-level network speeds. Proxies gRPC and REST traffic, enforces TLS 1.3, and runs custom Lua plugins (like the National Security Redis-backed interceptor) without touching backend code. |
+| **API Gateway & Perimeter** | **AWS WAF** | Advanced Web Application Firewall for IP throttling, rate-limiting, DDoS mitigation, and active inspection against SQLi and XSS payloads before they hit Kong. |
+| **Event Streaming** | **Apache Kafka** | Distributed message broker ensuring zero data loss. Partitioned into `sync_processing` (for high-priority fraud checks) and `async_analytics` (for sentiment tracking). Configured with strict idempotency and offset management. |
+| **Backend Microservices** | **Node.js & Express (TypeScript)** | The core business orchestrator (`auth-service`). Handles JWT RBAC, Argon2id password hashing, SDUI JSON generation, and interacts with PostgreSQL via Prisma/TypeORM with robust connection pooling. |
+| **Backend Microservices** | **Python & FastAPI** | High-concurrency AsyncIO wrappers for spatial GIS calculations (`cv-engine`, `vision-security`). Uses `tritonclient.grpc` for ultra-low latency communication with the AI cluster, plus OpenCV/NumPy for image preprocessing. |
+| **AI/ML - Text & NLP** | **Gemma-2B (INT8) & BERT-Base** | NLP Gatekeeper. Gemma-2B (quantized to INT8 for lower VRAM usage) handles complex policy/toxicity evaluation, while BERT-Base rapidly routes intent (Issue vs. Thank You). |
+| **AI/ML - Computer Vision** | **YOLOv8 / MobileNetV3** | Infrastructure CV engine running single-shot detection. Generates precise `(x, y, w, h)` bounding boxes for potholes/garbage and utilizes Non-Maximum Suppression (NMS) to filter overlapping duplicate boxes. |
+| **AI/ML - Vision Security** | **ViT & pHash + Geo-Engine** | Multi-modal fraud engine. ViT detects AI-generated synthetic noise, pHash blocks recycled internet images, and the Geo-Engine runs Haversine formula comparisons between EXIF and live device headers to catch location spoofing. |
+| **AI/ML - Analytics** | **VADER & RoBERTa** | Asynchronous Kafka consumer calculating compound polarity scores (-1.0 to +1.0) and grouping users into Hater/Supporter/Neutral buckets to generate real-time ward sentiment heatmaps. |
+| **MLOps & Inference** | **NVIDIA Triton Inference Server** | Unified Kubernetes GPU pod containerizing YOLO, ViT, and Gemma. Configured with strict `config.pbtxt` files for dynamic batching (e.g., holding requests for 50ms to process concurrently) to prevent OOM crashes. |
+| **MLOps & Inference** | **TensorRT & ONNX Runtime** | Hardware-accelerated inference backends. YOLOv8 compiles down to TensorRT execution plans for maximum CUDA core utilization, drastically dropping prediction latency. |
+| **Databases & Spatial GIS** | **PostgreSQL + PostGIS** | The central relational truth. Stores boundaries as `GEOMETRY(MultiPolygon, 4326)` and uses high-speed GIST indexing. Executes the automated `ST_Contains()` Point-in-Polygon database trigger for zero-latency ward assignment. |
+| **Caching & Feature Flags** | **Redis** | High-speed, millisecond-latency, in-memory store. Manages JWT token blacklisting, fast-read sets for the Kong National Security plugin, and caches duplicate text submissions to drop API load. |
+| **Blob Storage** | **AWS S3** | Secure, encrypted-at-rest (KMS) bucket for raw image and media archiving. Tightly locked down; the app only uploads/downloads media via short-lived, backend-generated pre-signed URLs. |
+| **Cloud Infrastructure** | **Kubernetes (K8s) + mTLS** | Container orchestration using Deployments, Horizontal Pod Autoscalers (HPA), and specialized GPU Node Pools. Employs a Service Mesh (Istio/Linkerd) for encrypted, zero-trust pod-to-pod communication. |
+| **Cloud Infrastructure** | **Terraform** | Declarative Infrastructure-as-Code (IaC) ensuring the private VPC, subnets, IAM roles, and K8s clusters can be spun up or recovered predictably and securely across multiple cloud environments. |
+| **Resilience & Fault Tolerance** | **Opossum / Resilience4j** | Circuit breaker logic embedded in Node/FastAPI. Monitors upstream failures; opens the circuit after a threshold, pushes incoming requests to the Kafka Dead Letter Queue (`gpu_retry_dlq`), and auto-heals (Half-Open state) when services recover. |
+
+--------
