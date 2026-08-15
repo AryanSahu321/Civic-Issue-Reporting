@@ -53,6 +53,8 @@ Here is the complete architectural baseline, technical stack, and data structure
   - AWS S3 (for encrypted raw image and media storage with short-lived pre-signed URLs).
 
 ### 2. Project Directory Structure
+### 2. Project Directory Structure
+```text
 civic-issue-platform/
 ├── client/                     # Mobile & Web frontend app
 ├── api-gateway/                # AWS API Gateway configuration & WAF rules
@@ -66,6 +68,7 @@ civic-issue-platform/
 │   ├── migrations/             # PostGIS DDL scripts & spatial indexes
 │   └── triggers/               # Automated Point-in-Polygon PiP functions
 └── infrastructure/             # Kubernetes manifests, Kafka configs, Terraform scripts
+```
 
 ### 3. Core API Endpoints & Contract
 - `POST /api/v1/posts/submit`: Ingests multipart form data containing:
