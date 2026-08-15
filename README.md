@@ -1083,3 +1083,51 @@ graph TD
     style Fallback_DLQ fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
     style Geo_Fallback fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
+
+# 5. MLOps Architecture & Versioning Flow 
+*  To run multiple deep learning models simultaneously (Gemma-2B, ViT, YOLOv8) in a production cluster without causing memory spikes or API latency, we must decouple the heavy GPU inference from our Python/FastAPI microservices.
+*  Instead of loading these heavy models directly into FastAPI's memory, FastAPI will act as a lightweight client that sends data via high-speed gRPC to NVIDIA Triton Inference Server. Triton is superior to standard ONNX Runtime here because it supports dynamic batching and can run TensorRT (for YOLOv8), ONNX (for ViT), and vLLM (for Gemma-2B) within the exact same unified GPU pod
+*  Yeh diagram dikhata hai ki models AWS S3 (Model Registry) se Triton mein kaise load hote hain, aur API Gateway bina downtime ke inference kaise karta hai.
+
+```mermaid
+
+graph TD
+    %% ==========================================
+    %% GLOBAL STYLING (GITHUB SAFE & TRANSPARENT)
+    %% ==========================================
+    classDef client fill:transparent,stroke:#ffb74d,stroke-width:2px,color:#ffffff;
+    classDef api fill:transparent,stroke:#64b5f6,stroke-width:2px,color:#ffffff,stroke-dasharray: 5 5;
+    classDef triton fill:transparent,stroke:#81c784,stroke-width:2px,color:#ffffff;
+    classDef db fill:transparent,stroke:#f57f17,stroke-width:2px,color:#ffffff;
+
+    linkStyle default stroke:#b0bec5,stroke-width:2px,fill:none;
+
+    S3[("AWS S3 Model Registry<br/>(Stores v1, v2, v3 weights)")]:::db
+    FastAPI["Python / FastAPI<br/>(Lightweight API Wrapper)"]:::api
+
+    subgraph Triton_Cluster ["NVIDIA Triton Inference Server (GPU Kubernetes Pod)"]
+        direction TB
+        GRPC["gRPC Endpoint<br/>(Ultra-low latency)"]:::triton
+        Batcher["Dynamic Batcher<br/>(Combines concurrent requests)"]:::triton
+        
+        subgraph Models ["Loaded Models in VRAM"]
+            M1["YOLOv8<br/>(TensorRT Backend)"]:::client
+            M2["ViT<br/>(ONNX Backend)"]:::client
+            M3["Gemma-2B<br/>(vLLM / PyTorch Backend)"]:::client
+        end
+
+        GRPC --> Batcher
+        Batcher --> M1
+        Batcher --> M2
+        Batcher --> M3
+    end
+
+    S3 -.->|"Hot-swaps new versions<br/>without dropping traffic"| Triton_Cluster
+    FastAPI -->|"Sends image tensors & text<br/>via gRPC"| GRPC
+
+    %% ==========================================
+    %% SUBGRAPH TRANSPARENCY STYLING
+    %% ==========================================
+    style Triton_Cluster fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+    style Models fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
+```
