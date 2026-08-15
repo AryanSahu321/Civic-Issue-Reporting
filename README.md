@@ -838,7 +838,7 @@ graph TD
     style Compliance fill:transparent,stroke:#90a4ae,stroke-width:2px,stroke-dasharray: 5 5,color:#ffffff
 ```
 
-# Database Schema Map (Dark Theme Optimized)
+# 1. Database Schema Map (Dark Theme Optimized)
 *  Highly-Styled Structural Map (graph TD): Perfectly matches the custom color-coding, layout, and styling constraints of your previous diagrams. It visually incorporates the Point-in-Polygon (PiP) trigger.
 ```mermaid
 graph TD
@@ -953,7 +953,7 @@ erDiagram
     POSTS ||--o{ SENTIMENT_METRICS : "analyzed for"
     WARDS ||--o{ SENTIMENT_METRICS : "aggregated by"
 ```
-# API Request Flow Diagram
+# 2. API Request Flow Diagram
 *  Yeh sequence diagram dikhata hai ki Mobile Client se aane wali single atomic request API Gateway ke through kaise validate aur route hoti hai.
 
 ```mermaid
@@ -980,7 +980,7 @@ sequenceDiagram
         API-->>App: 202 Accepted (Issue Pending Processing)
     end
 ```
-#1. State Machine Diagram (GitHub-Safe)
+# 3. State Machine Diagram (GitHub-Safe)
 * If we don't strictly define how an issue moves from one state to another (and exactly who or what has the permission to move it), we risk race conditions—like a citizen accidentally marking an unresolved issue as "Solved" or the AI bypassing the local ward.
 
 ```mermaid
@@ -1012,7 +1012,7 @@ stateDiagram-v2
     ESCALATED --> RESOLVED : State Admin Intervenes
     RESOLVED --> [*]
 ```
-# 1. Circuit Breaker & Fallback Architecture 
+# 4. Circuit Breaker & Fallback Architecture 
 *  Yeh flowchart dikhata hai ki jab GPU pod overload hota hai ya EXIF data missing hota hai, toh system gracefully kaise degrade karta hai.
 *  Yeh Circuit Breakers, Fallbacks, aur Dead Letter Queue (DLQ) strategy kisi bhi production-grade distributed system ki backbone hoti hai, especially jab aap heavy GPU clusters (YOLOv8/ViT) run kar rahe hon. Agar ek microservice crash hoti hai, toh humein ensure karna hai ki cascading failure na ho aur mobile app down na ho.
 
