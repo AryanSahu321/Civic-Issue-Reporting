@@ -601,3 +601,18 @@ Phase 2 (Spatial Bind): AI se pass hone ke baad, SPATIAL_VERIFIED state hit hoti
 Phase 3 (Human Intervention & SLA): Ab WardAdmin action leta hai (UNDER_PROCESS). Lekin sabse crucial part SLA (Service Level Agreement) hai. Agar officer ne 48 hours tak us post ko ignore kiya, toh system ka background cron job automatically status ko ESCALATED kar dega. Ek baar escalate hone ke baad, local WardAdmin apni galti chhupane ke liye usko RESOLVED mark nahi kar payega—ab yeh power sirf StateAdmin ke paas hai.
 
 -------
+
+
+# 2. The Solutions to Your Architectural Constraints (Circuit Breaker & Fallback Architecture)
+
+* Scenario A: The YOLO / ViT GPU Cluster Crashes or Spikes
+  *  Logic: Hum requests ko drop nahi karenge. Hum ek Circuit Breaker Pattern implement karenge.
+  *  Closed State: Normal traffic flows to GPUs.
+  *  Open State: Agar GPUs lagatar 5 requests fail karte hain (OOM/Timeout), circuit "Open" ho jata hai. Nayi requests directly Kafka Dead Letter Queue (DLQ) (gpu_retry_dlq) mein bhej di jati hain.
+  *  User Experience: User ko error nahi dikhega. API abhi bhi 202 Accepted dega, par issue ka status DB mein Pending se Delayed_Processing ho jayega. Jab GPU recover hoga (Half-Open state), Kafka DLQ se messages wapas      consume karna shuru karega.
+* Scenario B: User's Image has EXIF Tags Stripped for Privacy
+  * Logic: Privacy settings (like WhatsApp/Telegram images) EXIF metadata hata deti hain.
+  * Fallback 1: Agar image mein EXIF nahi hai, toh Geotag Engine turant X-Device-Latitude aur X-Device-Longitude headers par fallback karega jo API Gateway ne accept kiye the.
+  * Anti-Spoofing Check: Agar EXIF mojood hai aur headers bhi hain, toh engine dono ka distance calculate karega (Haversine formula). Agar difference > 500 meters hai, toh flag as GEO_SPOOFED (Location Fraud).
+ 
+-----
