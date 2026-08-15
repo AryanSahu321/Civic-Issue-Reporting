@@ -577,7 +577,7 @@ Yeh schema strict JSON payload aur headers ko define karta hai. Ise aap apne Swa
 
 -------
 
-# 2. State Transition Rules & Authorization Matrix
+# 3. State Transition Rules & Authorization Matrix
 *  This matrix acts as the exact business logic you will implement in your Node.js auth-service middleware and Express controllers.
 
 | Current State | Trigger / Action | Next State | Authorized Role (Actor) | Code Logic / Note |
@@ -591,7 +591,7 @@ Yeh schema strict JSON payload aur headers ko define karta hai. Ise aap apne Swa
 | **`ASSIGNED_TO_WARD`**| 48 hours pass without action | **`ESCALATED`** | System (Cron Job) | Bypasses local permissions; alerts State. |
 | **`ESCALATED`** | Higher authority resolves issue | **`RESOLVED`** | StateAdmin | Cannot be resolved by WardAdmin anymore. |
 
-3. Dry Run (Execution Flow in HINGLISH)
+## Dry Run (Execution Flow in HINGLISH)
 Is matrix ka main logic permissions aur automated fallbacks ko lock karna hai.
 
 Phase 1 (AI Gatekeeper): Jaise hi Citizen post submit karta hai, status PENDING_NLP hota hai. Is state mein koi human (Admin/Citizen) isko edit nahi kar sakta. Yeh strictly AI Microservices ka domain hai. Agar ViT ko deepfake milta hai, toh yeh turant FLAGGED_FRAUD mein chala jayega.
@@ -603,7 +603,7 @@ Phase 3 (Human Intervention & SLA): Ab WardAdmin action leta hai (UNDER_PROCESS)
 -------
 
 
-# 2. The Solutions to Your Architectural Constraints (Circuit Breaker & Fallback Architecture)
+# 4. The Solutions to Your Architectural Constraints (Circuit Breaker & Fallback Architecture)
 
 * Scenario A: The YOLO / ViT GPU Cluster Crashes or Spikes
   *  Logic: Hum requests ko drop nahi karenge. Hum ek Circuit Breaker Pattern implement karenge.
@@ -616,3 +616,9 @@ Phase 3 (Human Intervention & SLA): Ab WardAdmin action leta hai (UNDER_PROCESS)
   * Anti-Spoofing Check: Agar EXIF mojood hai aur headers bhi hain, toh engine dono ka distance calculate karega (Haversine formula). Agar difference > 500 meters hai, toh flag as GEO_SPOOFED (Location Fraud).
  
 -----
+
+# 5. MLOps Strategy & Dry Run (HINGLISH Breakdown)
+* Is architecture ka main goal API latency ko zero karna aur expensive GPU resources ko optimize karna hai.
+   * Hot-Swapping (Zero Downtime): Agar aapka Data Science team YOLOv8 ka ek naya, better version train karta hai, toh unhe sirf naya model AWS S3 ke v2/ folder mein drop karna hai. Triton automatically usko detect karega, background mein load karega, aur traffic ko smoothly naye model par shift kar dega bina kisi API downtime ke.
+   * Dynamic Batching: Agar ek sath 10 citizens civic issues report karte hain, toh 10 alag-alag GPU threads launch karne (jo system crash kar dega) ke bajaye, Triton un requests ko 50 milliseconds ke liye hold karega aur ek single batch banakar GPU mein bhejega. Isse throughput maximize hota hai aur RAM/VRAM spikes prevent hote hain.
+   * Microservice Isolation: Aapka Python FastAPI code ab heavy machine learning logic run nahi kar raha hai. Woh sirf images accept karta hai aur gRPC ke through Triton ko bhej deta hai. Iska matlab agar YOLO crash bhi ho jaye, toh FastAPI zinda rahegi aur requests ko gpu_retry_dlq (Kafka) mein daal degi.
