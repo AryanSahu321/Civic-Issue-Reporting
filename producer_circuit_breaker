@@ -1,0 +1,76 @@
+import os
+import json
+import logging
+import psycopg2
+import pybreaker
+from confluent_kafka import Producer
+from dotenv import load_dotenv
+
+load_dotenv()
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+# Kafka Producer Configuration with Idempotence
+producer_config = {
+    "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
+    "enable.idempotence": True,
+    "acks": "all",
+    "retries": 5,
+    "max.in.flight.requests.per.connection": 5,
+}
+producer = Producer(producer_config)
+
+# Circuit Breaker: Trips if 3 consecutive calls fail, resets after 30 seconds
+db_breaker = pybreaker.CircuitBreaker(fail_max=3, reset_timeout=30)
+
+def get_db_connection():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        dbname=os.getenv("DB_NAME", "civic_db"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD", "password123")
+    )
+
+def update_db_status(report_id: str, status: str):
+    """Updates the status of the report in PostgreSQL."""
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute("UPDATE civic_reports SET status = %s WHERE id = %s;", (status, report_id))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.error(f"Database error updating status for report {report_id}: {e}")
+
+def send_to_dlq(payload: dict):
+    """Fallback handler: Routes payload to Dead Letter Queue (gpu_retry_dlq)."""
+    try:
+        producer.produce(
+            topic="gpu_retry_dlq",
+            key=str(payload.get("report_id", "")).encode("utf-8"),
+            value=json.dumps(payload).encode("utf-8")
+        )
+        producer.flush()
+        update_db_status(payload.get("report_id"), "Delayed_Processing")
+        logger.warning(f"Report {payload.get('report_id')} routed to 'gpu_retry_dlq' with status 'Delayed_Processing'.")
+    except Exception as e:
+        logger.error(f"Failed to publish to DLQ: {e}")
+
+@db_breaker
+def call_gpu_inference(payload: dict):
+    """Simulates GPU inference service call."""
+    # Add real GPU inference API call here
+    # Raises exception if inference server times out or fails
+    pass
+
+def process_sync_event(payload: dict):
+    """Processes synchronous reporting event with circuit-breaker protection."""
+    try:
+        call_gpu_inference(payload)
+        update_db_status(payload.get("report_id"), "Completed")
+        logger.info(f"Report {payload.get('report_id')} processed successfully.")
+    except Exception as e:
+        logger.error(f"GPU processing failed/tripped: {e}")
+        send_to_dlq(payload)
