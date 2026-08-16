@@ -75,3 +75,36 @@ When generating code for me, you MUST adhere to these constraints:
 Acknowledge that you have fully memorized this unified architecture. I will provide my specific role prompt in my next message.
 
 ```
+------------
+
+
+
+## Yeh ek bahut hi shandar idea hai! Isse aapka poora project ek professional software engineering standard par chalega aur aapke paas hamesha ek solid documentation rahegi.
+
+Neeche ek **Reusable Master Prompt** diya gaya hai. Aap isay copy karke apne paas save kar sakte hain. Jab bhi aapko project ka status, ADRs, ya issue/error tracking table chahiye ho, aap bas yeh prompt mujhe bhej dijiyega:
+
+---
+
+### 📋 Reusable Master Prompt (Copy This)
+
+```text
+Please generate the comprehensive project summary and tracking reports for our Civic-Issue-Reporting project based on our current progress. 
+
+Please structure the output into the following 3 detailed tables with all standard industry parameters:
+
+1. Table 1: Task & Ticket Tracker (Kanban / Issue Tracker state: To Do, In Progress, Done, small-to-small tasks, and assignee/module details).
+2. Table 2: Architecture Decision Records (ADRs) & Trade-offs (Decision name, context, technical justification/reasons, and alternatives considered).
+3. Table 3: Error & Bug Tracking Log (Known errors encountered, root cause, resolution status, and prevention tools like Sentry/Logs).
+
+Ensure all parameters, technical decisions, small tasks, and reasons are captured accurately so I can maintain it in my GitHub repository documentation.
+
+```
+
+---
+
+### Is Prompt ka Fayda:
+
+* Jab bhi aap ise use karenge, main aapko exact 3 structured tables (Tickets/Tasks, ADRs, aur Error Logs) bana kar doonga.
+* Aap in tables ko copy karke apne GitHub repo mein `PROJECT_LOGS.md` ya `DOCUMENTATION.md` naam ki file mein paste kar sakte hain.
+
+Aap ise save kar lijiye aur jab bhi revision ya update chahiye ho, mujhe yeh prompt bhej dijiye!
