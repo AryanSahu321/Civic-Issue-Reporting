@@ -1,0 +1,43 @@
+{
+  "name": "civic-issue-reporting",
+  "version": "1.0.0",
+  "description": "```mermaid\r graph TD\r     %% ==========================================\r     %% GLOBAL STYLING (DARK THEME OPTIMIZED)\r     %% ==========================================\r     %% 1. Default edge style (Brighter Grey for Dark Backgrounds)\r     linkStyle default stroke:#cfd8dc,stroke-width:2px,fill:none;",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "echo \"No tests specified yet\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AryanSahu321/Civic-Issue-Reporting.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/AryanSahu321/Civic-Issue-Reporting/issues"
+  },
+  "homepage": "https://github.com/AryanSahu321/Civic-Issue-Reporting#readme",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "argon2": "^0.45.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.2.0",
+    "@types/pg": "^8.21.0",
+    "nodemon": "^3.1.14",
+    "prisma": "^5.22.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}

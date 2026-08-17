@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Prisma generated outputs
+generated/
+/generated/prisma/
+
+# OS & Editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Build & runtime artifacts
+dist/
+build/
+
+skills-lock.json
+.agents/
+.claude/
+.windsurf/
