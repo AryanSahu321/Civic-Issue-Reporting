@@ -1,4 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 // Layout Components
 import MobileContainer from "./components/layout/MobileContainer";
@@ -10,37 +16,25 @@ import IssueFeed from "./pages/IssueFeed";
 import ReportIssue from "./pages/ReportIssue";
 import MyTrackers from "./pages/MyTrackers";
 import MyProfile from "./pages/MyProfile";
+import LiveIssueJourney from "./pages/LiveIssueJourney"; // We add this for routing
 
-export default function App() {
-  // State to track which tab is currently active (defaults to 'home')
-  const [activeTab, setActiveTab] = useState("home");
+// We create a wrapper component to use the 'useLocation' hook
+// (It must be inside the <Router> to work)
+function AppContent() {
+  const location = useLocation();
+  const currentPath = location.pathname;
 
-  // A simple router function to render the correct page component
-  const renderContent = () => {
-    switch (activeTab) {
-      case "home":
-      case "explore":
-        return <IssueFeed />;
-      case "report":
-        return <ReportIssue />;
-      case "trackers":
-        return <MyTrackers />;
-      case "profile":
-        return <MyProfile />;
-      default:
-        return <IssueFeed />;
-    }
-  };
-
-  // Determine header title based on active tab
+  // Determine header title dynamically based on the active URL
   const getHeaderTitle = () => {
-    switch (activeTab) {
-      case "report":
+    switch (currentPath) {
+      case "/report":
         return "Report Civic Issue";
-      case "trackers":
+      case "/trackers":
         return "My Trackers";
-      case "profile":
+      case "/profile":
         return "My Profile";
+      case "/journey":
+        return "Live Issue Journey";
       default:
         return "Civic Platform";
     }
@@ -50,16 +44,30 @@ export default function App() {
     <MobileContainer>
       <TopHeader
         title={getHeaderTitle()}
-        rightAction={activeTab === "report" ? "Submit" : null}
+        rightAction={currentPath === "/report" ? "Submit" : null}
       />
 
-      {/* Scrollable middle section rendering our dynamic pages */}
+      {/* Scrollable middle section rendering our dynamic routes */}
       <div style={{ flex: 1, overflowY: "auto", paddingBottom: "80px" }}>
-        {renderContent()}
+        <Routes>
+          <Route path="/" element={<IssueFeed />} />
+          <Route path="/explore" element={<IssueFeed />} />
+          <Route path="/report" element={<ReportIssue />} />
+          <Route path="/trackers" element={<MyTrackers />} />
+          <Route path="/journey" element={<LiveIssueJourney />} />
+          <Route path="/profile" element={<MyProfile />} />
+        </Routes>
       </div>
 
-      {/* Pass state and the state-setter function to BottomNav */}
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav />
     </MobileContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
