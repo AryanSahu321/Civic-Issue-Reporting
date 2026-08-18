@@ -1,10 +1,8 @@
-// File: src/components/layout/TopHeader.jsx
 import React from "react";
 
 export default function TopHeader({ title, subtitle, leftIcon, rightAction }) {
   return (
     <div
-      className="top-header"
       style={{
         border: "2px dashed #ef4444" /* 🟥 RED DASHED BORDER */,
         backgroundColor: "#1e293b",
@@ -18,10 +16,7 @@ export default function TopHeader({ title, subtitle, leftIcon, rightAction }) {
         alignItems: "center",
       }}
     >
-      {/* Left Icon (e.g., Back button or Cross) */}
       {leftIcon && <div style={{ cursor: "pointer" }}>{leftIcon}</div>}
-
-      {/* Center Titles */}
       <div
         style={{
           flex: 1,
@@ -47,8 +42,6 @@ export default function TopHeader({ title, subtitle, leftIcon, rightAction }) {
           </p>
         )}
       </div>
-
-      {/* Right Action (e.g., Submit button) */}
       {rightAction && (
         <div
           style={{

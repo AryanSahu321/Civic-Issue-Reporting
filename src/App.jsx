@@ -16,16 +16,17 @@ import IssueFeed from "./pages/IssueFeed";
 import ReportIssue from "./pages/ReportIssue";
 import MyTrackers from "./pages/MyTrackers";
 import MyProfile from "./pages/MyProfile";
-import LiveIssueJourney from "./pages/LiveIssueJourney"; // We add this for routing
+import LiveIssueJourney from "./pages/LiveIssueJourney";
 
-// We create a wrapper component to use the 'useLocation' hook
-// (It must be inside the <Router> to work)
 function AppContent() {
   const location = useLocation();
   const currentPath = location.pathname;
 
   // Determine header title dynamically based on the active URL
   const getHeaderTitle = () => {
+    // We use .startsWith() for journey so it matches dynamic IDs like "/journey/CIVIC-4092"
+    if (currentPath.startsWith("/journey")) return "Live Issue Journey";
+
     switch (currentPath) {
       case "/report":
         return "Report Civic Issue";
@@ -33,8 +34,6 @@ function AppContent() {
         return "My Trackers";
       case "/profile":
         return "My Profile";
-      case "/journey":
-        return "Live Issue Journey";
       default:
         return "Civic Platform";
     }
@@ -44,7 +43,9 @@ function AppContent() {
     <MobileContainer>
       <TopHeader
         title={getHeaderTitle()}
-        rightAction={currentPath === "/report" ? "Submit" : null}
+        // We will rely on the big blue submit button inside the form itself,
+        // so we can leave rightAction as null here to avoid confusion.
+        rightAction={null}
       />
 
       {/* Scrollable middle section rendering our dynamic routes */}
@@ -54,7 +55,10 @@ function AppContent() {
           <Route path="/explore" element={<IssueFeed />} />
           <Route path="/report" element={<ReportIssue />} />
           <Route path="/trackers" element={<MyTrackers />} />
-          <Route path="/journey" element={<LiveIssueJourney />} />
+
+          {/* UPDATED: Added /:issueId so it can accept dynamic data */}
+          <Route path="/journey/:issueId" element={<LiveIssueJourney />} />
+
           <Route path="/profile" element={<MyProfile />} />
         </Routes>
       </div>
