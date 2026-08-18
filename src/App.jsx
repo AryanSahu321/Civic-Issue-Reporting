@@ -1,53 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 
-// Import our newly created layout components
+// Layout Components
 import MobileContainer from "./components/layout/MobileContainer";
 import TopHeader from "./components/layout/TopHeader";
 import BottomNav from "./components/layout/BottomNav";
 
+// Page Components
+import IssueFeed from "./pages/IssueFeed";
+import ReportIssue from "./pages/ReportIssue";
+import MyTrackers from "./pages/MyTrackers";
+import MyProfile from "./pages/MyProfile";
+
 export default function App() {
+  // State to track which tab is currently active (defaults to 'home')
+  const [activeTab, setActiveTab] = useState("home");
+
+  // A simple router function to render the correct page component
+  const renderContent = () => {
+    switch (activeTab) {
+      case "home":
+      case "explore":
+        return <IssueFeed />;
+      case "report":
+        return <ReportIssue />;
+      case "trackers":
+        return <MyTrackers />;
+      case "profile":
+        return <MyProfile />;
+      default:
+        return <IssueFeed />;
+    }
+  };
+
+  // Determine header title based on active tab
+  const getHeaderTitle = () => {
+    switch (activeTab) {
+      case "report":
+        return "Report Civic Issue";
+      case "trackers":
+        return "My Trackers";
+      case "profile":
+        return "My Profile";
+      default:
+        return "Civic Platform";
+    }
+  };
+
   return (
     <MobileContainer>
-      {/* 1. The Top Navigation Bar */}
-      <TopHeader title="Civic Platform" subtitle="Sprint 1: Layout Test" />
+      <TopHeader
+        title={getHeaderTitle()}
+        rightAction={activeTab === "report" ? "Submit" : null}
+      />
 
-      {/* 2. The Scrollable Page Content */}
-      {/* (Later, we will swap this out with our actual pages like MyProfile or IssueFeed) */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "16px",
-          paddingBottom: "80px",
-        }}
-      >
-        <h2>Welcome to Sprint 1! 🚀</h2>
-        <p>
-          If you are looking at this, it means your global layout is working
-          perfectly.
-        </p>
-
-        <div
-          style={{
-            marginTop: "20px",
-            padding: "15px",
-            backgroundColor: "#e2e8f0",
-            borderRadius: "8px",
-          }}
-        >
-          <strong>Checklist:</strong>
-          <ul style={{ marginLeft: "20px", marginTop: "10px" }}>
-            <li>Can you see the 🟪 Purple border constraining the app size?</li>
-            <li>Can you see the 🟥 Red dashed header at the top?</li>
-            <li>
-              Can you see the 🟨 Yellow bordered navigation menu at the bottom?
-            </li>
-          </ul>
-        </div>
+      {/* Scrollable middle section rendering our dynamic pages */}
+      <div style={{ flex: 1, overflowY: "auto", paddingBottom: "80px" }}>
+        {renderContent()}
       </div>
 
-      {/* 3. The Bottom Navigation Bar */}
-      <BottomNav activeTab="home" />
+      {/* Pass state and the state-setter function to BottomNav */}
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </MobileContainer>
   );
 }
