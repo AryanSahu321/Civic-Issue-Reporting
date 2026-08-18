@@ -1,0 +1,27 @@
+# Dependencies & Logs
+node_modules/
+logs/
+*.log
+*-debug.log*
+
+# Build outputs & Caching
+dist/
+build/
+.cache/
+.vite/
+vite.config.*.timestamp-*
+*.tsbuildinfo
+.tmp-*
+.claude-replay.*
+
+# Environment / Sensitive Keys
+.env*
+!.env.example
+
+# Figma Export Caches & Local Tooling
+.figma/
+.mise.toml
+
+# System files
+.DS_Store
+Thumbs.db
