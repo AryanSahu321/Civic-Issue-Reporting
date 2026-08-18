@@ -1,0 +1,262 @@
+{
+  "success": true,
+  "message": "Live civic issues fetched successfully",
+  "data": {
+    "total_results": 5,
+    "issues": [
+      {
+        "issue_id": "CIVIC-4092",
+        "title": "Massive Pothole on Main Arterial Road",
+        "description": "There is a crater-sized pothole right in the middle of the road near the crossing. Two-wheelers are skidding every night. It needs immediate patch work before the monsoons.",
+        "ai_category": "Pothole",
+        "status": "UNDER_PROCESS",
+        "priority": "HIGH",
+        "media": {
+          "image_url": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=800",
+          "is_video": false
+        },
+        "location": {
+          "latitude": 25.4484,
+          "longitude": 81.8333,
+          "address": "Civil Lines, Prayagraj, UP",
+          "ward_id": "WARD-12"
+        },
+        "metrics": {
+          "report_count": 14,
+          "upvotes": 85
+        },
+        "reporter": {
+          "is_anonymous": false,
+          "user_name": "Aman Srivastava",
+          "user_level": "Level 4 Citizen"
+        },
+        "timeline": [
+          {
+            "step": 1,
+            "title": "Post Submitted",
+            "desc": "Issue registered by citizen successfully.",
+            "status": "completed",
+            "date": "2026-08-16T09:15:00Z"
+          },
+          {
+            "step": 2,
+            "title": "AI Validation",
+            "desc": "Deepfake & P-Hash duplicate checks cleared.",
+            "status": "completed",
+            "date": "2026-08-16T09:16:00Z"
+          },
+          {
+            "step": 3,
+            "title": "Assigned to Desk",
+            "desc": "Sent to PWD Department, Ward 12.",
+            "status": "completed",
+            "date": "2026-08-16T10:00:00Z"
+          },
+          {
+            "step": 4,
+            "title": "Pending at Lower Level",
+            "desc": "Awaiting resource allocation.",
+            "status": "active",
+            "date": "2026-08-17T11:30:00Z"
+          }
+        ],
+        "created_at": "2026-08-16T09:15:00Z",
+        "updated_at": "2026-08-17T11:30:00Z"
+      },
+      {
+        "issue_id": "CIVIC-3810",
+        "title": "Overflowing Garbage Dump",
+        "description": "The community dustbin has not been cleared for 5 days. Garbage is spilling onto the pedestrian walk, and stray animals are spreading it further. Severe health hazard.",
+        "ai_category": "Waste",
+        "status": "BLOCKED",
+        "priority": "HIGH",
+        "media": {
+          "image_url": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=800",
+          "is_video": false
+        },
+        "location": {
+          "latitude": 25.4611,
+          "longitude": 81.849,
+          "address": "Katra Market, Prayagraj, UP",
+          "ward_id": "WARD-15"
+        },
+        "metrics": {
+          "report_count": 32,
+          "upvotes": 140
+        },
+        "reporter": {
+          "is_anonymous": true,
+          "user_name": "Anonymous Resident",
+          "user_level": "Level 1 Citizen"
+        },
+        "timeline": [
+          {
+            "step": 1,
+            "title": "Post Submitted",
+            "desc": "Issue registered.",
+            "status": "completed",
+            "date": "2026-08-10T08:00:00Z"
+          },
+          {
+            "step": 2,
+            "title": "Assigned to Municipal Desk",
+            "desc": "Sent to Waste Management Dept.",
+            "status": "completed",
+            "date": "2026-08-10T09:00:00Z"
+          },
+          {
+            "step": 3,
+            "title": "Delayed Action",
+            "desc": "Trucks unavailable due to maintenance.",
+            "status": "blocked",
+            "date": "2026-08-12T10:00:00Z"
+          }
+        ],
+        "created_at": "2026-08-10T08:00:00Z",
+        "updated_at": "2026-08-12T10:00:00Z"
+      },
+      {
+        "issue_id": "CIVIC-4105",
+        "title": "Broken Street Light in Alley",
+        "description": "The primary street light connecting the residential alley to the main road has completely stopped working. It is pitch dark at night, causing safety concerns for women and children.",
+        "ai_category": "Lighting",
+        "status": "UNDER_PROCESS",
+        "priority": "MEDIUM",
+        "media": {
+          "image_url": "https://images.unsplash.com/photo-1514905552197-0610a4d8fd73?auto=format&fit=crop&q=80&w=800",
+          "is_video": false
+        },
+        "location": {
+          "latitude": 25.4287,
+          "longitude": 81.8953,
+          "address": "Jhusi Chauraha, Prayagraj, UP",
+          "ward_id": "WARD-45"
+        },
+        "metrics": {
+          "report_count": 4,
+          "upvotes": 22
+        },
+        "reporter": {
+          "is_anonymous": false,
+          "user_name": "Priya Singh",
+          "user_level": "Level 3 Citizen"
+        },
+        "timeline": [
+          {
+            "step": 1,
+            "title": "Post Submitted",
+            "desc": "Registered.",
+            "status": "completed",
+            "date": "2026-08-17T18:20:00Z"
+          },
+          {
+            "step": 2,
+            "title": "Assigned to Electrical Board",
+            "desc": "Technician dispatched.",
+            "status": "active",
+            "date": "2026-08-18T09:00:00Z"
+          }
+        ],
+        "created_at": "2026-08-17T18:20:00Z",
+        "updated_at": "2026-08-18T09:00:00Z"
+      },
+      {
+        "issue_id": "CIVIC-2011",
+        "title": "Severe Water Logging",
+        "description": "Just 2 hours of rain has completely flooded the neighborhood intersection. The storm drains seem to be clogged with plastic waste.",
+        "ai_category": "Drainage",
+        "status": "RESOLVED",
+        "priority": "HIGH",
+        "media": {
+          "image_url": "https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&q=80&w=800",
+          "is_video": false
+        },
+        "location": {
+          "latitude": 25.4385,
+          "longitude": 81.8234,
+          "address": "Chowk Area, Prayagraj, UP",
+          "ward_id": "WARD-08"
+        },
+        "metrics": {
+          "report_count": 45,
+          "upvotes": 210
+        },
+        "reporter": {
+          "is_anonymous": false,
+          "user_name": "Rahul Verma",
+          "user_level": "Level 5 Citizen"
+        },
+        "timeline": [
+          {
+            "step": 1,
+            "title": "Post Submitted",
+            "desc": "Issue logged during storm.",
+            "status": "completed",
+            "date": "2026-07-20T12:00:00Z"
+          },
+          {
+            "step": 2,
+            "title": "Drainage Dept Dispatched",
+            "desc": "Pumping machines sent to location.",
+            "status": "completed",
+            "date": "2026-07-20T14:30:00Z"
+          },
+          {
+            "step": 3,
+            "title": "Issue Resolved",
+            "desc": "Water cleared and drains unclogged.",
+            "status": "completed",
+            "date": "2026-07-21T09:00:00Z"
+          }
+        ],
+        "created_at": "2026-07-20T12:00:00Z",
+        "updated_at": "2026-07-21T09:00:00Z"
+      },
+      {
+        "issue_id": "CIVIC-4188",
+        "title": "Fallen Tree Blocking Road",
+        "description": "A massive old tree has fallen across the street, taking down several power lines with it. Traffic is completely halted and it's highly dangerous.",
+        "ai_category": "Other",
+        "status": "UNDER_PROCESS",
+        "priority": "HIGH",
+        "media": {
+          "image_url": "https://images.unsplash.com/photo-1598801556942-887e0766166e?auto=format&fit=crop&q=80&w=800",
+          "is_video": false
+        },
+        "location": {
+          "latitude": 25.4552,
+          "longitude": 81.8505,
+          "address": "Tagore Town, Prayagraj, UP",
+          "ward_id": "WARD-20"
+        },
+        "metrics": {
+          "report_count": 8,
+          "upvotes": 50
+        },
+        "reporter": {
+          "is_anonymous": true,
+          "user_name": "Concerned Citizen",
+          "user_level": "Level 2 Citizen"
+        },
+        "timeline": [
+          {
+            "step": 1,
+            "title": "Post Submitted",
+            "desc": "Emergency logged.",
+            "status": "completed",
+            "date": "2026-08-18T06:00:00Z"
+          },
+          {
+            "step": 2,
+            "title": "Disaster Response Notified",
+            "desc": "NDRF & Electrical dept alerted.",
+            "status": "active",
+            "date": "2026-08-18T06:15:00Z"
+          }
+        ],
+        "created_at": "2026-08-18T06:00:00Z",
+        "updated_at": "2026-08-18T06:15:00Z"
+      }
+    ]
+  }
+}

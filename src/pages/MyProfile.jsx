@@ -1,5 +1,5 @@
 import React from "react";
-import { calculateUserImpact } from "./ImpactCalculator";
+import { calculateUserImpact } from "../components/ImpactCalculator";
 
 // --- SUB-COMPONENT: The Orange Border Impact Box ---
 const CivicImpactSummary = ({ impactData }) => {
