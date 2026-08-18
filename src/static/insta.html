@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Civic Issue Post - Layout Testing</title>
+    <style>
+      /* Basic reset */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #e2e8f0; /* Desktop par background grey dikhega */
+        display: flex;
+        justify-content: center; /* Phone screen ko center mein rakhne ke liye */
+        font-family: Arial, sans-serif;
+      }
+
+      /* 📱 MAIN PHONE SCREEN CONTAINER (PURPLE BORDER) */
+      .phone-screen {
+        width: 100%;
+        max-width: 400px; /* Ek typical phone ki width */
+        height: 100vh; /* Poori screen ki height (Viewport Height) */
+        background-color: white;
+        border: 4px solid purple;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 👤 HEADER SECTION: User Name, Location & Time (RED BORDER) */
+      .post-header {
+        border: 3px dashed red;
+        padding: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .user-info {
+        display: flex;
+        flex-direction: column;
+      }
+      .user-name {
+        font-weight: bold;
+        font-size: 15px;
+      }
+      .location {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 3px;
+      }
+      .time-ago {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+
+      /* 🖼️ IMAGE SECTION (BLUE BORDER) */
+      .post-image {
+        border: 3px solid blue;
+        flex: 1; /* Yeh bachi hui poori screen space cover kar lega */
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+      .post-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Image bina stretch huye box mein fit ho jayegi */
+      }
+
+      /* 📝 CONTENT SECTION: Title, Description, Status (GREEN BORDER) */
+      .post-content {
+        border: 3px solid green;
+        padding: 12px;
+      }
+      .status-badge {
+        display: inline-block;
+        background-color: #fef08a; /* Yellow for UNDER PROCESS */
+        color: #854d0e;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .post-title {
+        margin: 0 0 6px 0;
+        font-size: 18px;
+        color: #0f172a;
+      }
+      .post-desc {
+        margin: 0;
+        font-size: 14px;
+        color: #475569;
+        line-height: 1.4;
+      }
+
+      /* 📊 METRICS SECTION: Report Count & Upvotes (ORANGE BORDER) */
+      .post-footer {
+        border: 3px solid orange;
+        padding: 12px;
+        display: flex;
+        justify-content: space-between;
+        background-color: #f8fafc;
+      }
+      .metric {
+        font-size: 14px;
+        font-weight: bold;
+        color: #334155;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-screen">
+      <div class="post-header">
+        <div class="user-info">
+          <span class="user-name">Aman Srivastava</span>
+          <span class="location">📍 Civil Lines, Prayagraj</span>
+        </div>
+        <span class="time-ago">2 hours ago</span>
+      </div>
+
+      <div class="post-image">
+        <img
+          src="https://placehold.co/600x800/FF6B6B/FFFFFF?text=Huge+Pothole"
+          alt="Pothole Issue"
+        />
+      </div>
+
+      <div class="post-content">
+        <div class="status-badge">⏳ UNDER PROCESS</div>
+        <h3 class="post-title">Huge Pothole near Coffee House</h3>
+        <p class="post-desc">
+          Civil Lines mein Indian Coffee House ke theek bahar ek bohot bada
+          pothole hai. Raat mein dikhta nahi hai, accidents ka risk hai.
+        </p>
+      </div>
+
+      <div class="post-footer">
+        <div class="metric">⚠️ 12 People Reported</div>
+        <div class="metric">🔥 45 Upvotes</div>
+      </div>
+    </div>
+  </body>
+</html>

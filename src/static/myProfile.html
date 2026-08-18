@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile - Civic Issue Reporting</title>
+    <style>
+      /* Basic Reset */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #0f172a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      /* 🟪 1. MAIN PHONE CONTAINER (PURPLE) */
+      .phone-container {
+        width: 100%;
+        max-width: 400px;
+        height: 100vh;
+        background-color: #f8fafc;
+        border: 4px solid #8b5cf6;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 📜 SCROLLABLE AREA */
+      .scrollable-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 80px; /* Space for bottom nav */
+      }
+
+      /* 🟥 2. TOP HEADER (RED) */
+      .top-header {
+        border: 2px dashed #ef4444;
+        background-color: #1e293b;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
+      /* 🟦 3. USER IDENTITY INFO (BLUE) */
+      .user-info-section {
+        border: 2px solid #3b82f6;
+        background-color: white;
+        margin: 12px;
+        padding: 16px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background-color: #e2e8f0;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        border: 2px solid #3b82f6;
+      }
+      .user-details h3 {
+        font-size: 18px;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .verified-badge {
+        font-size: 12px;
+        background-color: #dcfce7;
+        color: #166534;
+        padding: 2px 6px;
+        border-radius: 10px;
+      }
+      .user-loc {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 4px;
+      }
+      .user-level {
+        font-size: 13px;
+        font-weight: bold;
+        color: #2563eb;
+        margin-top: 4px;
+      }
+
+      /* 🩵 4. REWARD BADGES (CYAN) */
+      .badges-section {
+        border: 2px solid #06b6d4;
+        margin: 0 12px 12px 12px;
+        padding: 12px;
+        background-color: white;
+        border-radius: 10px;
+      }
+      .section-title {
+        font-size: 13px;
+        font-weight: bold;
+        color: #475569;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .badges-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .badge-item {
+        background-color: #fef9c3;
+        border: 1px solid #fde047;
+        color: #854d0e;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 6px 10px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* 🟩 5. STATS & RESOLUTION RATE (GREEN) */
+      .stats-section {
+        border: 2px solid #22c55e;
+        margin: 0 12px 12px 12px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .stat-card {
+        background-color: white;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+      }
+      .stat-card.main {
+        grid-column: span 2;
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        color: white;
+      }
+      .stat-val {
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .stat-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+      .stat-card:not(.main) .stat-val {
+        color: #0f172a;
+      }
+      .stat-card:not(.main) .stat-label {
+        color: #64748b;
+      }
+
+      /* 🟧 6. CIVIC IMPACT SUMMARY (ORANGE) */
+      .impact-section {
+        border: 2px solid #f97316;
+        background-color: #fff7ed;
+        margin: 0 12px 12px 12px;
+        padding: 16px;
+        border-radius: 10px;
+      }
+      .impact-text {
+        font-size: 13px;
+        color: #9a3412;
+        line-height: 1.5;
+      }
+      .impact-text strong {
+        color: #c2410c;
+      }
+
+      /* 🟪 7. RECENT ISSUES MINI (PINK) */
+      .recent-issues-section {
+        border: 2px solid #ec4899;
+        background-color: white;
+        margin: 0 12px 12px 12px;
+        padding: 12px;
+        border-radius: 10px;
+      }
+      .mini-issue {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .mini-issue:last-child {
+        border-bottom: none;
+      }
+      .mini-issue-title {
+        font-size: 13px;
+        font-weight: bold;
+        color: #1e293b;
+      }
+      .mini-issue-date {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 4px;
+      }
+      .dot-resolved {
+        background-color: #22c55e;
+      }
+      .dot-progress {
+        background-color: #f59e0b;
+      }
+
+      /* 🟨 8. BOTTOM NAVIGATION MENU (YELLOW) */
+      .bottom-nav {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 65px;
+        background-color: #1e293b;
+        border-top: 3px solid #eab308;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 20;
+      }
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 600;
+        gap: 3px;
+        width: 20%;
+      }
+      .nav-item .icon {
+        font-size: 18px;
+      }
+      .nav-item.active {
+        color: #38bdf8;
+      }
+      .nav-item.active .icon {
+        transform: scale(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-container">
+      <div class="top-header">MY PROFILE</div>
+
+      <div class="scrollable-content">
+        <div class="user-info-section">
+          <div class="avatar">👤</div>
+          <div class="user-details">
+            <h3>
+              Aman Srivastava <span class="verified-badge">✓ Verified</span>
+            </h3>
+            <div class="user-loc">📍 Prayagraj, Uttar Pradesh</div>
+            <div class="user-level">⭐ Level 4 Citizen</div>
+          </div>
+        </div>
+
+        <div class="badges-section">
+          <div class="section-title">Achievements</div>
+          <div class="badges-grid">
+            <div class="badge-item">🏆 Top Reporter</div>
+            <div class="badge-item">⚡ Fast Filler</div>
+            <div class="badge-item">🌟 Community Star</div>
+            <div class="badge-item">📸 Perfect Evidence</div>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <div class="stat-card main">
+            <div class="stat-val">1,250</div>
+            <div class="stat-label">Total Civic Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: #16a34a">8</div>
+            <div class="stat-label">Resolved</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: #d97706">3</div>
+            <div class="stat-label">In Progress</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: #dc2626">1</div>
+            <div class="stat-label">Escalated</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: #4f46e5">66%</div>
+            <div class="stat-label">Resolution Rate</div>
+          </div>
+        </div>
+
+        <div class="impact-section">
+          <div class="section-title" style="color: #9a3412">Civic Impact</div>
+          <p class="impact-text">
+            Your reports have collectively impacted approximately
+            <strong>2,400 residents</strong> in <strong>Ward 7</strong>. You
+            rank in the <strong>Top 5%</strong> of Civic Zone contributors in
+            Prayagraj. Keep up the great work!
+          </p>
+        </div>
+
+        <div class="recent-issues-section">
+          <div class="section-title">Recent Reports</div>
+          <div class="mini-issue">
+            <div>
+              <div class="mini-issue-title">
+                <span class="status-dot dot-resolved"></span> Huge Pothole on
+                Main Rd
+              </div>
+              <div class="mini-issue-date">Resolved 2 days ago</div>
+            </div>
+          </div>
+          <div class="mini-issue">
+            <div>
+              <div class="mini-issue-title">
+                <span class="status-dot dot-progress"></span> Broken Street
+                Light
+              </div>
+              <div class="mini-issue-date">Reported today</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <a href="#" class="nav-item"
+          ><span class="icon">🏠</span><span>Home</span></a
+        >
+        <a href="#" class="nav-item"
+          ><span class="icon">🔍</span><span>Explore</span></a
+        >
+        <a href="#" class="nav-item"
+          ><span class="icon">➕</span><span>Report</span></a
+        >
+        <a href="#" class="nav-item"
+          ><span class="icon">📌</span><span>My Trackers</span></a
+        >
+        <a href="#" class="nav-item active"
+          ><span class="icon">👤</span><span>Profile</span></a
+        >
+      </div>
+    </div>
+  </body>
+</html>

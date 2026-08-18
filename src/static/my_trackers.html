@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Trackers - Civic Issue Reporting</title>
+    <style>
+      /* Reset & CSS Setup */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #0f172a; /* Dark background for desktop preview */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      /* 🟪 1. MAIN PHONE CONTAINER (PURPLE BORDER) */
+      .phone-container {
+        width: 100%;
+        max-width: 400px;
+        height: 100vh;
+        background-color: #f8fafc;
+        border: 4px solid #8b5cf6; /* PURPLE BORDER */
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      /* 📜 SCROLLABLE CONTENT AREA */
+      .scrollable-content {
+        flex: 1;
+        overflow-y: auto; /* Allows vertical scrolling */
+        padding-bottom: 80px; /* Padding to prevent content from hiding behind bottom nav */
+      }
+
+      /* 🟥 2. TOP HEADER (RED DASHED BORDER) */
+      .top-header {
+        border: 2px dashed #ef4444; /* RED BORDER */
+        background-color: #1e293b;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .top-header h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #38bdf8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .top-header p {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 2px;
+      }
+
+      /* 🩵 3. USER SUMMARY STATS CARD (CYAN BORDER) */
+      .summary-card {
+        border: 2px solid #06b6d4; /* CYAN BORDER */
+        background-color: #ecfeff;
+        margin: 12px;
+        padding: 14px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+      }
+      .stat-box .count {
+        font-size: 20px;
+        font-weight: bold;
+        color: #0e7490;
+      }
+      .stat-box .label {
+        font-size: 11px;
+        color: #155e75;
+        margin-top: 2px;
+        font-weight: 600;
+      }
+
+      /* SECTION TITLES */
+      .section-title {
+        font-size: 13px;
+        font-weight: bold;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 14px 12px 6px 12px;
+      }
+
+      /* ISSUE CARD LINKS */
+      .issue-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      /* COMMON ISSUE CARD STYLES */
+      .issue-card {
+        background-color: white;
+        margin: 0 12px 10px 12px;
+        padding: 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .issue-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .issue-id {
+        font-size: 12px;
+        font-weight: bold;
+        color: #1e293b;
+      }
+
+      /* BADGES */
+      .badge {
+        font-size: 10px;
+        font-weight: bold;
+        padding: 3px 8px;
+        border-radius: 12px;
+        text-transform: uppercase;
+      }
+      .badge-progress {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .badge-blocked {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .badge-resolved {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+
+      .issue-title {
+        font-size: 14px;
+        font-weight: bold;
+        color: #0f172a;
+        margin-bottom: 8px;
+      }
+
+      .card-info {
+        font-size: 12px;
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        background-color: #f8fafc;
+        padding: 8px;
+        border-radius: 6px;
+      }
+      .card-info strong {
+        color: #334155;
+      }
+
+      /* 🟦 4. IN PROGRESS CARD (BLUE BORDER) */
+      .card-in-progress {
+        border: 2px solid #3b82f6; /* BLUE BORDER */
+      }
+
+      /* 🟧 5. BLOCKED CARD (RED/AMBER BORDER) */
+      .card-blocked {
+        border: 2px solid #ef4444; /* RED BORDER */
+        background-color: #fff5f5;
+      }
+
+      /* 🟩 6. RESOLVED CARD (GREEN BORDER) */
+      .card-resolved {
+        border: 2px solid #22c55e; /* GREEN BORDER */
+        opacity: 0.9;
+      }
+
+      /* 🟨 7. BOTTOM NAVIGATION MENU (YELLOW BORDER) */
+      .bottom-nav {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 65px;
+        background-color: #1e293b;
+        border-top: 3px solid #eab308; /* YELLOW BORDER */
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 20;
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 600;
+        gap: 3px;
+        width: 20%;
+      }
+
+      .nav-item .icon {
+        font-size: 18px;
+      }
+
+      /* Active State for My Trackers */
+      .nav-item.active {
+        color: #38bdf8;
+      }
+      .nav-item.active .icon {
+        transform: scale(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-container">
+      <div class="scrollable-content">
+        <div class="top-header">
+          <h2>📌 My Trackers</h2>
+          <p>Monitor status & department progress of your reported issues</p>
+        </div>
+
+        <div class="summary-card">
+          <div class="stat-box">
+            <div class="count">5</div>
+            <div class="label">Total Raised</div>
+          </div>
+          <div class="stat-box">
+            <div class="count" style="color: #2563eb">2</div>
+            <div class="label">In Progress</div>
+          </div>
+          <div class="stat-box">
+            <div class="count" style="color: #dc2626">1</div>
+            <div class="label">Blocked</div>
+          </div>
+          <div class="stat-box">
+            <div class="count" style="color: #16a34a">2</div>
+            <div class="label">Resolved</div>
+          </div>
+        </div>
+
+        <div class="section-title">Active & Blocked Issues</div>
+
+        <a href="issue_details.html" class="issue-card-link">
+          <div class="issue-card card-in-progress">
+            <div class="card-top">
+              <span class="issue-id">ID: #CIVIC-4092</span>
+              <span class="badge badge-progress">⏳ In Progress</span>
+            </div>
+            <div class="issue-title">Bada Pothole near Main Road</div>
+            <div class="card-info">
+              <span
+                >📍 <strong>Location:</strong> Civil Lines, Prayagraj (Ward
+                12)</span
+              >
+              <span
+                >🏛️ <strong>Current Desk:</strong> Municipal Ward Office</span
+              >
+            </div>
+          </div>
+        </a>
+
+        <a href="issue_details.html" class="issue-card-link">
+          <div class="issue-card card-blocked">
+            <div class="card-top">
+              <span class="issue-id">ID: #CIVIC-3810</span>
+              <span class="badge badge-blocked">⚠️ Blocked</span>
+            </div>
+            <div class="issue-title">Open Garbage Dump Near Market</div>
+            <div class="card-info">
+              <span
+                >📍 <strong>Location:</strong> Katra Market, Prayagraj (Ward
+                15)</span
+              >
+              <span
+                >🚨 <strong>Stuck At:</strong> Lower Level Municipal Desk
+                (>48h)</span
+              >
+            </div>
+          </div>
+        </a>
+
+        <a href="issue_details.html" class="issue-card-link">
+          <div class="issue-card card-in-progress">
+            <div class="card-top">
+              <span class="issue-id">ID: #CIVIC-4105</span>
+              <span class="badge badge-progress">⏳ In Progress</span>
+            </div>
+            <div class="issue-title">Broken Street Light on Highway</div>
+            <div class="card-info">
+              <span
+                >📍 <strong>Location:</strong> Jhusi Chauraha, Prayagraj (Ward
+                45)</span
+              >
+              <span
+                >🏛️ <strong>Current Desk:</strong> Electrical Department
+                Desk</span
+              >
+            </div>
+          </div>
+        </a>
+
+        <div class="section-title">Completed & Resolved</div>
+
+        <a href="issue_details.html" class="issue-card-link">
+          <div class="issue-card card-resolved">
+            <div class="card-top">
+              <span class="issue-id">ID: #CIVIC-2011</span>
+              <span class="badge badge-resolved">✅ Resolved</span>
+            </div>
+            <div class="issue-title">Water Logging After Rain</div>
+            <div class="card-info">
+              <span
+                >📍 <strong>Location:</strong> Chowk Area, Prayagraj (Ward
+                08)</span
+              >
+              <span
+                >🏛️ <strong>Resolved By:</strong> Drainage Maintenance
+                Dept</span
+              >
+            </div>
+          </div>
+        </a>
+
+        <a href="issue_details.html" class="issue-card-link">
+          <div class="issue-card card-resolved">
+            <div class="card-top">
+              <span class="issue-id">ID: #CIVIC-1904</span>
+              <span class="badge badge-resolved">✅ Resolved</span>
+            </div>
+            <div class="issue-title">Damaged Sewer Pipeline</div>
+            <div class="card-info">
+              <span
+                >📍 <strong>Location:</strong> Tagore Town, Prayagraj (Ward
+                20)</span
+              >
+              <span>🏛️ <strong>Resolved By:</strong> Jal Nigam Department</span>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="bottom-nav">
+        <a href="#" class="nav-item">
+          <span class="icon">🏠</span>
+          <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">🔍</span>
+          <span>Explore</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">➕</span>
+          <span>Report</span>
+        </a>
+        <a href="#" class="nav-item active">
+          <span class="icon">📌</span>
+          <span>My Trackers</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">👤</span>
+          <span>Profile</span>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

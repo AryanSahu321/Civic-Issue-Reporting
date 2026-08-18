@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Civic Issue</title>
+    <style>
+      /* Reset & CSS Setup */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #0f172a; /* Dark background for desktop preview */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      /* 🟪 1. MAIN PHONE CONTAINER (PURPLE BORDER) */
+      .phone-container {
+        width: 100%;
+        max-width: 400px;
+        height: 100vh;
+        background-color: #f8fafc;
+        border: 4px solid #8b5cf6; /* PURPLE BORDER */
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      /* 🟥 2. TOP HEADER (RED DASHED BORDER) */
+      .top-header {
+        border: 2px dashed #ef4444; /* RED BORDER */
+        background-color: #ffffff;
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .header-icon {
+        font-size: 20px;
+        color: #64748b;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .header-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .header-submit {
+        font-size: 14px;
+        font-weight: bold;
+        color: #3b82f6; /* Blue submit text */
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      /* 📜 SCROLLABLE CONTENT AREA */
+      .scrollable-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: bold;
+        color: #475569;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        margin-top: 16px;
+      }
+      .section-title:first-child {
+        margin-top: 0;
+      }
+
+      /* 🟦 3. PHOTO EVIDENCE UPLOAD (BLUE BORDER) */
+      .photo-upload-box {
+        border: 2px dashed #3b82f6; /* BLUE BORDER */
+        background-color: #eff6ff;
+        height: 140px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #2563eb;
+        cursor: pointer;
+      }
+      .photo-upload-box .icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+      .photo-upload-box .text {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .photo-upload-box .subtext {
+        font-size: 11px;
+        color: #60a5fa;
+        margin-top: 4px;
+      }
+
+      /* 🩵 4. ISSUE CATEGORY (CYAN BORDER) */
+      .category-section {
+        border: 2px solid #06b6d4; /* CYAN BORDER */
+        padding: 10px;
+        border-radius: 8px;
+        background-color: #ffffff;
+      }
+      .category-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .category-card {
+        background-color: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 12px 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .category-card.selected {
+        background-color: #cffafe;
+        border-color: #06b6d4;
+      }
+      .category-card .icon {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+      .category-card .label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #334155;
+      }
+
+      /* 🟩 5. ISSUE DETAILS / INPUTS (GREEN BORDER) */
+      .details-section {
+        border: 2px solid #22c55e; /* GREEN BORDER */
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .input-field {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        color: #0f172a;
+      }
+      .input-field::placeholder {
+        color: #94a3b8;
+      }
+      textarea.input-field {
+        resize: none;
+        height: 100px;
+      }
+
+      /* 🟧 6. URGENCY SELECTOR (ORANGE BORDER) */
+      .urgency-section {
+        border: 2px solid #f97316; /* ORANGE BORDER */
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #ffffff;
+      }
+      .urgency-row {
+        display: flex;
+        gap: 8px;
+      }
+      .urgency-btn {
+        flex: 1;
+        padding: 10px 0;
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background-color: #f8fafc;
+        color: #475569;
+        cursor: pointer;
+      }
+      /* Active states for urgency */
+      .urgency-btn.low {
+        color: #16a34a;
+        border-color: #16a34a;
+        background-color: #dcfce7;
+      }
+      .urgency-btn.medium {
+        color: #d97706;
+      }
+      .urgency-btn.high {
+        color: #dc2626;
+      }
+
+      /* 🟪 7. MAIN SUBMIT BUTTON (PINK BORDER) */
+      .submit-button-container {
+        border: 2px solid #ec4899; /* PINK BORDER */
+        margin-top: 20px;
+        padding: 4px;
+        border-radius: 8px;
+        background-color: #ffffff;
+      }
+      .btn-submit {
+        width: 100%;
+        padding: 14px;
+        background-color: #3b82f6;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-container">
+      <div class="top-header">
+        <a class="header-icon">✕</a>
+        <div class="header-title">Report Civic Issue</div>
+        <a class="header-submit">Submit</a>
+      </div>
+
+      <div class="scrollable-content">
+        <div class="section-title">Photo Evidence</div>
+        <div class="photo-upload-box">
+          <div class="icon">📷</div>
+          <div class="text">Tap to add photo</div>
+          <div class="subtext">Camera or Gallery</div>
+        </div>
+
+        <div class="section-title">Issue Category</div>
+        <div class="category-section">
+          <div class="category-grid">
+            <div class="category-card selected">
+              <span class="icon">🛣️</span>
+              <span class="label">Road</span>
+            </div>
+            <div class="category-card">
+              <span class="icon">💧</span>
+              <span class="label">Water</span>
+            </div>
+            <div class="category-card">
+              <span class="icon">💡</span>
+              <span class="label">Lighting</span>
+            </div>
+            <div class="category-card">
+              <span class="icon">🗑️</span>
+              <span class="label">Waste</span>
+            </div>
+            <div class="category-card">
+              <span class="icon">🌊</span>
+              <span class="label">Drainage</span>
+            </div>
+            <div class="category-card">
+              <span class="icon">📌</span>
+              <span class="label">Other</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">Issue Details</div>
+        <div class="details-section">
+          <input
+            type="text"
+            class="input-field"
+            placeholder="Issue Title (e.g., Deep pothole on Main St)"
+          />
+          <textarea
+            class="input-field"
+            placeholder="Provide a brief description of the issue..."
+          ></textarea>
+        </div>
+
+        <div class="section-title">Urgency</div>
+        <div class="urgency-section">
+          <div class="urgency-row">
+            <div class="urgency-btn low">Low</div>
+            <div class="urgency-btn medium">Medium</div>
+            <div class="urgency-btn high">High</div>
+          </div>
+        </div>
+
+        <div class="submit-button-container">
+          <button class="btn-submit">Submit Report</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
