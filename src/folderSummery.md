@@ -1,55 +1,61 @@
+# Project Architecture & Execution Plan
+
+## 📁 Directory Structure
+
+```text
 src/
 │
-├── assets/ # Static files (images, global CSS, SVGs)
+├── assets/         # Static files (images, global CSS, SVGs)
 │
-├── components/ # 🌐 GLOBAL UI ONLY (Dumb/Shared Components)
-│ ├── ui/ # Small, highly reusable elements
-│ │ ├── StatusBadge.jsx
-│ │ ├── SubmitButton.jsx
-│ │ └── SectionTitle.jsx
-│ └── layout/ # Page wrappers and navigation
-│ ├── MobileContainer.jsx
-│ ├── TopHeader.jsx
-│ └── BottomNav.jsx
+├── components/     # 🌐 GLOBAL UI ONLY (Dumb/Shared Components)
+│   ├── ui/         # Small, highly reusable elements
+│   │   ├── StatusBadge.jsx
+│   │   ├── SubmitButton.jsx
+│   │   └── SectionTitle.jsx
+│   └── layout/     # Page wrappers and navigation
+│       ├── MobileContainer.jsx
+│       ├── TopHeader.jsx
+│       └── BottomNav.jsx
 │
-├── features/ # 🧠 THE BRAINS (Grouped by Business Domain)
-│ │
-│ ├── feed/ # Everything related to scrolling issues
-│ │ └── components/
-│ │ ├── FeedPostCard.jsx
-│ │ └── CategoryFilter.jsx
-│ │
-│ ├── reporting/ # Everything related to creating a new issue
-│ │ └── components/
-│ │ ├── PhotoUploader.jsx
-│ │ ├── CategorySelector.jsx
-│ │ └── UrgencyToggle.jsx
-│ │
-│ ├── tracking/ # Everything related to the live journey
-│ │ └── components/
-│ │ ├── JourneyProgressBar.jsx
-│ │ ├── VerticalTimeline.jsx
-│ │ ├── BottleneckAlert.jsx
-│ │ └── CompactIssueCard.jsx
-│ │
-│ └── profile/ # Everything related to the user and gamification
-│ ├── components/
-│ │ ├── UserProfileHeader.jsx
-│ │ ├── AchievementBadges.jsx
-│ │ └── CivicImpactSummary.jsx
-│ └── utils/
-│ └── ImpactCalculator.js <-- Moved here because it only belongs to Profile
+├── features/       # 🧠 THE BRAINS (Grouped by Business Domain)
+│   │
+│   ├── feed/       # Everything related to scrolling issues
+│   │   └── components/
+│   │       ├── FeedPostCard.jsx
+│   │       └── CategoryFilter.jsx
+│   │
+│   ├── reporting/  # Everything related to creating a new issue
+│   │   └── components/
+│   │       ├── PhotoUploader.jsx
+│   │       ├── CategorySelector.jsx
+│   │       └── UrgencyToggle.jsx
+│   │
+│   ├── tracking/   # Everything related to the live journey
+│   │   └── components/
+│   │       ├── JourneyProgressBar.jsx
+│   │       ├── VerticalTimeline.jsx
+│   │       ├── BottleneckAlert.jsx
+│   │       └── CompactIssueCard.jsx
+│   │
+│   └── profile/    # Everything related to the user and gamification
+│       ├── components/
+│       │   ├── UserProfileHeader.jsx
+│       │   ├── AchievementBadges.jsx
+│       │   └── CivicImpactSummary.jsx
+│       └── utils/
+│           └── ImpactCalculator.js <-- Moved here because it only belongs to Profile
 │
-├── pages/ # 🗺️ SCREENS (These stitch features together)
-│ ├── IssueFeed.jsx
-│ ├── ReportIssue.jsx
-│ ├── LiveIssueJourney.jsx
-│ ├── MyTrackers.jsx
-│ └── MyProfile.jsx
+├── pages/          # 🗺️ SCREENS (These stitch features together)
+│   ├── IssueFeed.jsx
+│   ├── ReportIssue.jsx
+│   ├── LiveIssueJourney.jsx
+│   ├── MyTrackers.jsx
+│   └── MyProfile.jsx
 │
-└── utils/ # Global utilities (e.g., Haversine distance formula)
+└── utils/          # Global utilities (e.g., Haversine distance formula)
+```
 
-By doing this, when a bug occurs in the "Photo Uploader", you don't have to scan through 50 random files. You know exactly where it lives: features/reporting/.
+By doing this, when a bug occurs in the **Photo Uploader**, you don't have to scan through 50 random files. You know exactly where it lives: `features/reporting/`.
 
 This is the exact mindset of a Senior Engineer. Building everything at once and praying it works at the end is a recipe for disaster. We call your approach **Iterative Development with Component-Driven Testing**.
 
